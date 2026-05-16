@@ -358,10 +358,32 @@
 }
 .inhale-wrap .tablenav.bottom { margin: 0; }
 
-.inhale-wrap .inhale-quickactions {
+.inhale-wrap .bulkactions {
 	display: flex;
 	align-items: center;
 	gap: 6px;
+}
+.inhale-wrap .bulkactions select.inhale-bulk-action {
+	height: 30px;
+	padding: 0 24px 0 10px;
+	font-family: var(--rp-font-body);
+	font-size: 13px;
+	background: var(--bg-input);
+	color: var(--fg);
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	appearance: none;
+	background-image:
+		linear-gradient(45deg, transparent 50%, var(--fg-muted) 50%),
+		linear-gradient(135deg, var(--fg-muted) 50%, transparent 50%);
+	background-position: calc(100% - 12px) 50%, calc(100% - 8px) 50%;
+	background-size: 4px 4px, 4px 4px;
+	background-repeat: no-repeat;
+}
+.inhale-wrap .bulkactions select.inhale-bulk-action:focus {
+	border-color: var(--accent);
+	outline: 0;
+	box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .inhale-wrap .tablenav-pages {
@@ -461,13 +483,6 @@
  * hides the row. */
 .inhale-wrap .wp-list-table tbody tr.inhale-pg-hidden { display: none; }
 
-/* Pending-row treatment. Status pill, counts and filters all reflect
- * the STAGED state (what the user has chosen, not yet saved). The only
- * signal that a row hasn't persisted is a calm amber left-edge accent.
- * The dirty indicator next to Save changes is the second signal. */
-.inhale-wrap .wp-list-table.inhale-table > tbody > tr.inhale-pending > td:first-child {
-	box-shadow: inset 3px 0 0 0 var(--warn-border);
-}
 
 /* Buttons (scoped, lest we override wp-admin's defaults elsewhere) */
 .inhale-wrap .button {
@@ -894,50 +909,87 @@
 	color: var(--fg-dim);
 	font-style: italic;
 }
-
-.inhale-wrap .save-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 16px;
-	margin: 16px 0 0;
+/* Inferred annotation badge: dashed border + faint asterisk. Signals
+ * that Inhale guessed the annotation from the ability name because the
+ * registering plugin did not declare it. */
+.inhale-wrap .annot.inferred {
+	border-style: dashed;
+	opacity: 0.92;
 }
-.inhale-wrap .save-row .summary {
+.inhale-wrap .annot-inferred-mark {
+	display: inline-flex;
+	font-family: var(--rp-font-mono);
+	color: var(--fg-muted);
+	font-size: 10px;
+	font-weight: 700;
+	line-height: 1;
+	margin-left: 4px;
+	transform: translateY(-2px);
+}
+.inhale-wrap .annot.destructive .annot-inferred-mark { color: var(--warn-fg); }
+
+/* Annotation legend below the table. Calm two-column dl with the badge
+ * (in its actual rendered form) as the term and the explanation as the
+ * description. Reuses the existing token palette. */
+.inhale-wrap .inhale-legend__grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0;
+	margin: 16px 0 0;
+	background: var(--bg-card);
+	border: 1px solid var(--border-soft);
+	border-radius: 6px;
+	overflow: hidden;
+	max-width: 920px;
+}
+.inhale-wrap .inhale-legend__row {
+	display: grid;
+	grid-template-columns: 180px 1fr;
+	gap: 24px;
+	padding: 14px 18px;
+	border-top: 1px solid var(--border-soft);
+	align-items: start;
+}
+.inhale-wrap .inhale-legend__row:first-child { border-top: 0; }
+.inhale-wrap .inhale-legend__row dt {
+	margin: 0;
+	padding-top: 2px;
+}
+.inhale-wrap .inhale-legend__row dd {
+	margin: 0;
+	font-size: 13.5px;
+	color: var(--fg);
+	line-height: 1.55;
+}
+@media (max-width: 782px) {
+	.inhale-wrap .inhale-legend__row {
+		grid-template-columns: 1fr;
+		gap: 8px;
+	}
+}
+
+/* Row-hover quick actions, wp-admin native pattern. Surface "Inhale" or
+ * "Exhale" links beneath the ability name on row hover; clicking a link
+ * commits the single-row action immediately without going through the
+ * bulk dropdown. */
+.inhale-wrap .wp-list-table .row-actions {
 	font-size: 13px;
 	color: var(--fg-muted);
-	display: inline-flex;
-	align-items: center;
-	gap: 14px;
-	flex-wrap: wrap;
+	padding: 2px 0 0;
+	visibility: hidden;
+	transition: visibility 80ms ease;
 }
-.inhale-wrap .save-row .summary strong {
-	font-family: var(--rp-font-mono);
-	font-weight: 500;
-	color: var(--fg);
+.inhale-wrap .wp-list-table tbody tr:hover .row-actions,
+.inhale-wrap .wp-list-table tbody tr:focus-within .row-actions {
+	visibility: visible;
 }
-.inhale-wrap .inhale-dirty-indicator {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	font-family: var(--rp-font-mono);
-	font-size: 11px;
-	font-weight: 600;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-	color: var(--warn-fg);
-	padding: 2px 8px;
-	background: var(--warn-bg);
-	border: 1px solid var(--warn-border);
-	border-radius: 999px;
+.inhale-wrap .row-actions .inhale-row-action {
+	color: var(--fg-link);
+	text-decoration: none;
 }
-.inhale-wrap .inhale-dirty-indicator[hidden] { display: none; }
-.inhale-wrap .inhale-dirty-dot {
-	width: 6px;
-	height: 6px;
-	border-radius: 50%;
-	background: var(--warn-fg);
-	flex-shrink: 0;
-}
+.inhale-wrap .row-actions .inhale-row-action:hover { color: var(--fg-link-hover); text-decoration: underline; }
+.inhale-wrap .row-actions span.exhale .inhale-row-action { color: var(--warn-fg); }
+.inhale-wrap .row-actions span.exhale .inhale-row-action:hover { color: var(--warn-fg); text-decoration: underline; }
 
 .inhale-wrap .divider {
 	border: 0;

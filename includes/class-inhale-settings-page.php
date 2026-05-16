@@ -16,10 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Inhale_Settings_Page {
 
 	const MENU_SLUG     = 'inhale-mcp-abilities';
-	const OPTION_GROUP  = 'inhale_mcp_abilities_group';
 	const CAPABILITY    = 'manage_options';
 	const MANAGED_NS    = 'mcp-adapter/';
 	const DEFAULT_SERVER_ROUTE = '/wp-json/mcp/mcp-adapter-default-server';
+	const NONCE_ACTION  = 'inhale_mcp_apply';
 
 	/**
 	 * Cache for the discovered abilities (per request).
@@ -33,8 +33,6 @@ class Inhale_Settings_Page {
 	 */
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'register_menu' ), 10, 0 );
-		add_action( 'admin_init', array( $this, 'register_setting' ), 10, 0 );
-		add_action( 'admin_head', array( $this, 'inject_menu_icon_css' ), 10, 0 );
 	}
 
 	/**
@@ -51,120 +49,159 @@ class Inhale_Settings_Page {
 	}
 
 	/**
-	 * Inject the Inhale dot-grid mark next to the submenu item and on the
-	 * Plugins screen row, alongside admin-bar fallbacks for older themes.
+	 * Process a bulk action POST if one was submitted, then redirect back
+	 * to the settings page so the table renders the fresh state and a
+	 * success notice. Standard wp-admin list-table flow.
 	 *
-	 * add_options_page() doesn't accept an icon parameter for sub-pages, so
-	 * we deliver the mark as a CSS background-image (URL-encoded SVG) on a
-	 * ::before pseudo-element scoped to our submenu anchor.
+	 * Called from render_page() before any output.
 	 */
-	public function inject_menu_icon_css() {
-		$svg_url = $this->get_icon_data_url();
-		$css     = '#adminmenu .wp-submenu a[href$="page=' . esc_attr( self::MENU_SLUG ) . '"]::before{'
-			. 'content:"";'
-			. 'display:inline-block;'
-			. 'width:14px;'
-			. 'height:14px;'
-			. 'background-image:url(\'' . $svg_url . '\');'
-			. 'background-size:contain;'
-			. 'background-repeat:no-repeat;'
-			. 'background-position:center;'
-			. 'vertical-align:-3px;'
-			. 'margin-right:6px;'
-			. 'border-radius:2px;'
-			. 'flex-shrink:0;'
-			. '}';
-		echo '<style>' . $css . '</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	/**
-	 * Build a URL-encoded data: URL for the Inhale dot-grid mark.
-	 *
-	 * Kept inline (rather than referencing the assets/images/icon.svg file)
-	 * so the menu marker loads with the admin head and doesn't trigger a
-	 * second HTTP request.
-	 *
-	 * @return string
-	 */
-	private function get_icon_data_url() {
-		$svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
-			. '<g fill="#a8a29e">'
-			. '<circle cx="20" cy="20" r="4"/><circle cx="32" cy="20" r="4"/><circle cx="44" cy="20" r="4"/><circle cx="56" cy="20" r="4"/><circle cx="68" cy="20" r="4"/><circle cx="80" cy="20" r="4"/>'
-			. '<circle cx="20" cy="32" r="4"/><circle cx="32" cy="32" r="4"/><circle cx="44" cy="32" r="4"/><circle cx="56" cy="32" r="4"/><circle cx="68" cy="32" r="4"/><circle cx="80" cy="32" r="4"/>'
-			. '<circle cx="20" cy="44" r="4"/><circle cx="32" cy="44" r="4"/><circle cx="44" cy="44" r="4"/><circle cx="56" cy="44" r="4"/><circle cx="68" cy="44" r="4"/><circle cx="80" cy="44" r="4"/>'
-			. '<circle cx="20" cy="56" r="4"/><circle cx="32" cy="56" r="4"/><circle cx="44" cy="56" r="4"/><circle cx="56" cy="56" r="4"/><circle cx="68" cy="56" r="4"/><circle cx="80" cy="56" r="4"/>'
-			. '<circle cx="20" cy="68" r="4"/><circle cx="32" cy="68" r="4"/><circle cx="44" cy="68" r="4"/><circle cx="56" cy="68" r="4"/><circle cx="68" cy="68" r="4"/><circle cx="80" cy="68" r="4"/>'
-			. '<circle cx="20" cy="80" r="4"/><circle cx="32" cy="80" r="4"/><circle cx="44" cy="80" r="4"/><circle cx="56" cy="80" r="4"/><circle cx="68" cy="80" r="4"/><circle cx="80" cy="80" r="4"/>'
-			. '</g>'
-			. '<g fill="#34d399">'
-			. '<circle cx="32" cy="32" r="4"/><circle cx="44" cy="56" r="4"/><circle cx="56" cy="20" r="4"/><circle cx="68" cy="68" r="4"/><circle cx="20" cy="80" r="4"/>'
-			. '</g>'
-			. '</svg>';
-		return 'data:image/svg+xml;utf8,' . rawurlencode( $svg );
-	}
-
-	/**
-	 * Register the option with the Settings API.
-	 */
-	public function register_setting() {
-		register_setting(
-			self::OPTION_GROUP,
-			INHALE_OPTION_NAME,
-			array(
-				'type'              => 'array',
-				'description'       => __( 'List of ability names exposed to the default MCP server.', 'inhale-mcp-abilities' ),
-				'sanitize_callback' => array( $this, 'sanitize_option' ),
-				'default'           => array(),
-				'show_in_rest'      => false,
-			)
-		);
-	}
-
-	/**
-	 * Sanitize the submitted option value.
-	 *
-	 * Accepts only string entries that match an ability name currently
-	 * registered on this site, and that are not in the managed mcp-adapter
-	 * namespace.
-	 *
-	 * @param mixed $value Submitted value.
-	 * @return array<int, string>
-	 */
-	public function sanitize_option( $value ) {
-		if ( ! is_array( $value ) ) {
-			return array();
+	private function maybe_process_bulk_action() {
+		if ( 'POST' !== ( isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : '' ) ) {
+			return;
+		}
+		if ( ! current_user_can( self::CAPABILITY ) ) {
+			return;
+		}
+		$nonce = isset( $_POST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ) : '';
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, self::NONCE_ACTION ) ) {
+			return;
 		}
 
+		// Bulk action selector. Posts pattern: `action` (top) or
+		// `action2` (bottom). If both are -1 ignore.
+		$action  = isset( $_POST['action'] ) ? sanitize_key( wp_unslash( $_POST['action'] ) ) : '';
+		$action2 = isset( $_POST['action2'] ) ? sanitize_key( wp_unslash( $_POST['action2'] ) ) : '';
+		if ( '-1' === $action || '' === $action ) {
+			$action = $action2;
+		}
+		if ( ! in_array( $action, array( 'inhale', 'exhale' ), true ) ) {
+			$this->redirect_with_message( 'no_action' );
+			return;
+		}
+
+		$abilities = isset( $_POST['abilities'] ) ? (array) wp_unslash( $_POST['abilities'] ) : array();
+		$abilities = array_values(
+			array_filter(
+				array_map(
+					static function ( $entry ) {
+						return is_string( $entry ) ? sanitize_text_field( $entry ) : '';
+					},
+					$abilities
+				)
+			)
+		);
+		if ( empty( $abilities ) ) {
+			$this->redirect_with_message( 'none_selected' );
+			return;
+		}
+
+		// Validate against currently registered abilities and reject
+		// anything in the adapter-managed namespace.
 		$known = array_map(
 			static function ( $a ) {
 				return isset( $a['name'] ) ? (string) $a['name'] : '';
 			},
 			$this->discover_abilities()
 		);
-		$known = array_filter( $known );
+		$known = array_values( array_filter( $known ) );
 
-		$out = array();
-		foreach ( $value as $entry ) {
-			if ( ! is_string( $entry ) ) {
-				continue;
-			}
-			$entry = sanitize_text_field( wp_unslash( $entry ) );
-			if ( '' === $entry ) {
-				continue;
-			}
-			if ( 0 === strpos( $entry, self::MANAGED_NS ) ) {
-				continue;
-			}
-			if ( ! in_array( $entry, $known, true ) ) {
-				continue;
-			}
-			if ( in_array( $entry, $out, true ) ) {
-				continue;
-			}
-			$out[] = $entry;
+		$abilities = array_values(
+			array_filter(
+				$abilities,
+				function ( $name ) use ( $known ) {
+					if ( 0 === strpos( $name, self::MANAGED_NS ) ) {
+						return false;
+					}
+					return in_array( $name, $known, true );
+				}
+			)
+		);
+
+		if ( empty( $abilities ) ) {
+			$this->redirect_with_message( 'none_valid' );
+			return;
 		}
 
-		return $out;
+		$current = $this->get_exposed();
+
+		if ( 'inhale' === $action ) {
+			$new_list = array_values( array_unique( array_merge( $current, $abilities ) ) );
+		} else {
+			$new_list = array_values( array_diff( $current, $abilities ) );
+		}
+
+		update_option( INHALE_OPTION_NAME, $new_list );
+
+		$this->redirect_with_message(
+			'inhale' === $action ? 'inhaled' : 'exhaled',
+			count( $abilities )
+		);
+	}
+
+	/**
+	 * Redirect back to the settings page with a notice query param.
+	 *
+	 * @param string   $code  Notice code.
+	 * @param int|null $count Optional count for the notice.
+	 */
+	private function redirect_with_message( $code, $count = null ) {
+		$url = admin_url( 'options-general.php?page=' . self::MENU_SLUG );
+		$url = add_query_arg( 'notice', sanitize_key( $code ), $url );
+		if ( null !== $count ) {
+			$url = add_query_arg( 'notice_count', (int) $count, $url );
+		}
+		wp_safe_redirect( $url );
+		exit;
+	}
+
+	/**
+	 * Render any success/info notice triggered by the previous request.
+	 */
+	private function render_notice() {
+		if ( ! isset( $_GET['notice'] ) ) {
+			return;
+		}
+		$code  = sanitize_key( wp_unslash( $_GET['notice'] ) );
+		$count = isset( $_GET['notice_count'] ) ? (int) $_GET['notice_count'] : 0;
+
+		switch ( $code ) {
+			case 'inhaled':
+				$message = sprintf(
+					/* translators: %d: count of abilities inhaled. */
+					_n( '%d ability inhaled.', '%d abilities inhaled.', max( 1, $count ), 'inhale-mcp-abilities' ),
+					max( 1, $count )
+				);
+				$type = 'success';
+				break;
+			case 'exhaled':
+				$message = sprintf(
+					/* translators: %d: count of abilities exhaled. */
+					_n( '%d ability exhaled.', '%d abilities exhaled.', max( 1, $count ), 'inhale-mcp-abilities' ),
+					max( 1, $count )
+				);
+				$type = 'success';
+				break;
+			case 'no_action':
+				$message = __( 'Choose a bulk action before clicking Apply.', 'inhale-mcp-abilities' );
+				$type    = 'warning';
+				break;
+			case 'none_selected':
+				$message = __( 'Select at least one ability before applying a bulk action.', 'inhale-mcp-abilities' );
+				$type    = 'warning';
+				break;
+			case 'none_valid':
+				$message = __( 'No valid abilities to act on.', 'inhale-mcp-abilities' );
+				$type    = 'warning';
+				break;
+			default:
+				return;
+		}
+
+		printf(
+			'<div class="notice notice-%s is-dismissible inhale-notice"><p>%s</p></div>',
+			esc_attr( 'success' === $type ? 'success' : 'warning' ),
+			esc_html( $message )
+		);
 	}
 
 	/**
@@ -241,7 +278,12 @@ class Inhale_Settings_Page {
 		}
 
 		$annotations = $this->extract_annotations( $meta );
-		$managed     = ( 0 === strpos( $name, self::MANAGED_NS ) );
+		$inferred    = false;
+		if ( empty( $annotations ) ) {
+			$annotations = $this->infer_annotations( $name );
+			$inferred    = ! empty( $annotations );
+		}
+		$managed = ( 0 === strpos( $name, self::MANAGED_NS ) );
 
 		return array(
 			'name'        => $name,
@@ -249,8 +291,73 @@ class Inhale_Settings_Page {
 			'description' => $description,
 			'source'      => $this->get_source_plugin( $name ),
 			'annotations' => $annotations,
+			'inferred'    => $inferred,
 			'managed'     => $managed,
 		);
+	}
+
+	/**
+	 * Heuristically infer annotations from an ability's name when the
+	 * registering plugin didn't declare any.
+	 *
+	 * Conservative: matches common verb tokens in the slug. Inferred
+	 * annotations are rendered with a distinct visual treatment so the
+	 * user can tell them apart from declared annotations.
+	 *
+	 * @param string $name Ability name (e.g. `respira/wordpress-update-page`).
+	 * @return array<int, string>
+	 */
+	private function infer_annotations( $name ) {
+		$slug = strtolower( $name );
+		$pos  = strpos( $slug, '/' );
+		if ( false !== $pos ) {
+			$slug = substr( $slug, $pos + 1 );
+		}
+		$tokens = preg_split( '/[-_\s]+/', $slug );
+		if ( ! is_array( $tokens ) || empty( $tokens ) ) {
+			return array();
+		}
+
+		$read_tokens = array(
+			'get', 'list', 'read', 'show', 'fetch', 'search', 'find', 'view', 'count',
+			'info', 'validate', 'check', 'analyze', 'analyse', 'scan', 'diagnose',
+			'preview', 'inspect', 'describe', 'lookup', 'has',
+		);
+		$write_tokens = array(
+			'create', 'add', 'insert', 'new', 'register', 'install',
+			'update', 'set', 'edit', 'modify', 'patch', 'change', 'rename',
+			'move', 'duplicate', 'clone', 'copy', 'merge', 'apply',
+			'delete', 'remove', 'destroy', 'purge', 'drop', 'flush', 'trash', 'erase',
+			'uninstall', 'activate', 'deactivate', 'enable', 'disable',
+			'switch', 'send', 'submit', 'publish', 'unpublish', 'approve', 'reject',
+			'upload', 'import', 'sync', 'restore', 'rollback', 'reset', 'sideload',
+			'redeem', 'assign', 'bulk', 'batch',
+		);
+		$idempotent_tokens = array(
+			'update', 'set', 'restore', 'rollback', 'apply', 'sync', 'install',
+			'activate', 'deactivate', 'enable', 'disable',
+		);
+
+		$flags = array();
+		foreach ( $tokens as $tok ) {
+			if ( in_array( $tok, $read_tokens, true ) ) {
+				$flags['read-only'] = true;
+			}
+			if ( in_array( $tok, $write_tokens, true ) ) {
+				$flags['destructive'] = true;
+			}
+			if ( in_array( $tok, $idempotent_tokens, true ) ) {
+				$flags['idempotent'] = true;
+			}
+		}
+
+		// If both read and write tokens matched (e.g. "get-and-update-..."),
+		// the destructive signal wins (safer side of the doubt).
+		if ( isset( $flags['destructive'] ) ) {
+			unset( $flags['read-only'] );
+		}
+
+		return array_keys( $flags );
 	}
 
 	/**
@@ -406,6 +513,8 @@ class Inhale_Settings_Page {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'inhale-mcp-abilities' ) );
 		}
 
+		$this->maybe_process_bulk_action();
+
 		$abilities       = $this->discover_abilities();
 		$exposed         = $this->get_exposed();
 		$counts          = $this->build_counts( $abilities, $exposed );
@@ -415,7 +524,7 @@ class Inhale_Settings_Page {
 
 		?>
 		<div class="wrap inhale-wrap" data-theme="light">
-			<?php settings_errors(); ?>
+			<?php $this->render_notice(); ?>
 
 			<div class="page-head">
 				<div class="page-head-text">
@@ -496,9 +605,9 @@ class Inhale_Settings_Page {
 				</aside>
 			<?php endif; ?>
 
-			<form method="post" action="options.php" id="inhaleAbilitiesForm">
-				<?php settings_fields( self::OPTION_GROUP ); ?>
-				<?php $this->render_save_row( 'top', $counts ); ?>
+			<form method="post" action="" id="inhaleAbilitiesForm">
+				<?php wp_nonce_field( self::NONCE_ACTION ); ?>
+				<input type="hidden" name="page" value="<?php echo esc_attr( self::MENU_SLUG ); ?>" />
 
 				<div class="filters-row">
 					<div class="filters-row-left">
@@ -600,9 +709,36 @@ class Inhale_Settings_Page {
 				</table>
 
 				<?php $this->render_tablenav( 'bottom', $counts ); ?>
-
-				<?php $this->render_save_row( 'bottom', $counts ); ?>
 			</form>
+
+			<hr class="divider"/>
+
+			<section class="section inhale-legend" aria-labelledby="inhale-legend-h">
+				<h2 id="inhale-legend-h"><?php esc_html_e( 'What the annotations mean', 'inhale-mcp-abilities' ); ?></h2>
+				<p><?php esc_html_e( 'Each ability can carry metadata that tells you, and your MCP client, how safe it is to call. The annotations come from the plugin that registered the ability. Where the plugin did not declare any, Inhale: MCP Abilities infers them from the ability name and marks them with an asterisk.', 'inhale-mcp-abilities' ); ?></p>
+				<dl class="inhale-legend__grid">
+					<div class="inhale-legend__row">
+						<dt><span class="annot neutral"><?php esc_html_e( 'read-only', 'inhale-mcp-abilities' ); ?></span></dt>
+						<dd><?php esc_html_e( 'The ability only reads data. It cannot create, modify or delete anything on your site. Safe to call repeatedly. Examples: list products, get a page, retrieve users.', 'inhale-mcp-abilities' ); ?></dd>
+					</div>
+					<div class="inhale-legend__row">
+						<dt><span class="annot destructive"><svg class="glyph" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" aria-hidden="true"><path d="M5 1.4L9 8.6H1z"/></svg><?php esc_html_e( 'destructive', 'inhale-mcp-abilities' ); ?></span></dt>
+						<dd><?php esc_html_e( 'The ability can create, modify or delete content. Inhaling a destructive ability requires explicit confirmation. Examples: create a product, update an order, delete a category.', 'inhale-mcp-abilities' ); ?></dd>
+					</div>
+					<div class="inhale-legend__row">
+						<dt><span class="annot neutral"><?php esc_html_e( 'idempotent', 'inhale-mcp-abilities' ); ?></span></dt>
+						<dd><?php esc_html_e( 'Running the ability multiple times has the same effect as running it once. Often paired with destructive. Useful signal for AI agents that may retry. Examples: set a setting to a value, ensure a category exists.', 'inhale-mcp-abilities' ); ?></dd>
+					</div>
+					<div class="inhale-legend__row">
+						<dt><span class="annot neutral inferred"><?php esc_html_e( 'read-only', 'inhale-mcp-abilities' ); ?><span class="annot-inferred-mark" aria-hidden="true">*</span></span></dt>
+						<dd><?php esc_html_e( 'Inferred annotation. The registering plugin did not declare it. Inhale: MCP Abilities guesses from the ability name (verbs like get, list, read). Treat inferred read-only as conservative; verify before granting an MCP client write access to that ability.', 'inhale-mcp-abilities' ); ?></dd>
+					</div>
+					<div class="inhale-legend__row">
+						<dt><span class="annot-none"><?php esc_html_e( 'no annotations', 'inhale-mcp-abilities' ); ?></span></dt>
+						<dd><?php esc_html_e( 'The registering plugin did not declare any safety hints, and the name did not match a known verb. Treat it as unknown. Check the ability description and the source plugin before inhaling.', 'inhale-mcp-abilities' ); ?></dd>
+					</div>
+				</dl>
+			</section>
 
 			<hr class="divider"/>
 
@@ -713,35 +849,8 @@ class Inhale_Settings_Page {
 	}
 
 	/**
-	 * Render the save row (inhaled count + dirty indicator + submit
-	 * button). Rendered both above and below the table so the action is
-	 * reachable from either end without scrolling. The dirty indicator
-	 * and inhaled count in both rows are kept in sync by the JS layer.
-	 *
-	 * @param string             $position 'top' or 'bottom'.
-	 * @param array<string, int> $counts   Counts array including 'inhaled'.
-	 */
-	private function render_save_row( $position, $counts ) {
-		$position = ( 'top' === $position ) ? 'top' : 'bottom';
-		$btn_name = 'top' === $position ? 'submit-top' : 'submit';
-		?>
-		<div class="save-row save-row--<?php echo esc_attr( $position ); ?>">
-			<div class="summary">
-				<strong class="inhale-inhaled-count"><?php echo (int) $counts['inhaled']; ?></strong>
-				<?php esc_html_e( 'abilities currently inhaled', 'inhale-mcp-abilities' ); ?>
-				<span class="inhale-dirty-indicator" hidden>
-					<span class="inhale-dirty-dot" aria-hidden="true"></span>
-					<?php esc_html_e( 'Unsaved changes', 'inhale-mcp-abilities' ); ?>
-				</span>
-			</div>
-			<?php submit_button( __( 'Save changes', 'inhale-mcp-abilities' ), 'primary large', $btn_name, false ); ?>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Render the tablenav row (quick actions on the left, pagination on the
-	 * right). Used both above and below the abilities table.
+	 * Render the tablenav row (bulk actions + Apply on the left, pagination
+	 * on the right). Used both above and below the abilities table.
 	 *
 	 * @param string             $position 'top' or 'bottom'.
 	 * @param array<string, int> $counts   View counts for displaying-num.
@@ -749,24 +858,18 @@ class Inhale_Settings_Page {
 	private function render_tablenav( $position, $counts ) {
 		$position    = ( 'top' === $position ) ? 'top' : 'bottom';
 		$total       = (int) $counts['all'];
-		$current_in  = (int) $counts['inhaled'];
+		$select_name = ( 'top' === $position ) ? 'action' : 'action2';
+		$select_id   = 'inhale-bulk-action-' . $position;
 		?>
 		<div class="tablenav <?php echo esc_attr( $position ); ?>">
-			<div class="inhale-quickactions">
-				<button
-					type="button"
-					class="button inhale-quickaction"
-					data-action="inhale"
-					title="<?php esc_attr_e( 'Inhale every ability matching the current filter. Changes apply when you click Save changes.', 'inhale-mcp-abilities' ); ?>">
-					<?php esc_html_e( 'Inhale all filtered', 'inhale-mcp-abilities' ); ?>
-				</button>
-				<button
-					type="button"
-					class="button inhale-quickaction"
-					data-action="exhale"
-					title="<?php esc_attr_e( 'Exhale every ability matching the current filter. Changes apply when you click Save changes.', 'inhale-mcp-abilities' ); ?>">
-					<?php esc_html_e( 'Exhale all filtered', 'inhale-mcp-abilities' ); ?>
-				</button>
+			<div class="alignleft actions bulkactions">
+				<label for="<?php echo esc_attr( $select_id ); ?>" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'inhale-mcp-abilities' ); ?></label>
+				<select id="<?php echo esc_attr( $select_id ); ?>" name="<?php echo esc_attr( $select_name ); ?>" class="inhale-bulk-action">
+					<option value="-1"><?php esc_html_e( 'Bulk actions', 'inhale-mcp-abilities' ); ?></option>
+					<option value="inhale"><?php esc_html_e( 'Inhale', 'inhale-mcp-abilities' ); ?></option>
+					<option value="exhale"><?php esc_html_e( 'Exhale', 'inhale-mcp-abilities' ); ?></option>
+				</select>
+				<button type="submit" class="button action inhale-bulk-apply" name="<?php echo esc_attr( 'top' === $position ? 'apply-top' : 'apply-bottom' ); ?>"><?php esc_html_e( 'Apply', 'inhale-mcp-abilities' ); ?></button>
 			</div>
 			<div class="tablenav-pages">
 				<span class="displaying-num">
@@ -825,6 +928,7 @@ class Inhale_Settings_Page {
 		$source      = (string) $a['source'];
 		$annotations = (array) $a['annotations'];
 		$managed     = ! empty( $a['managed'] );
+		$inferred    = ! empty( $a['inferred'] );
 
 		$is_destructive = in_array( 'destructive', $annotations, true );
 
@@ -836,32 +940,40 @@ class Inhale_Settings_Page {
 		$row_attrs  = array();
 		$row_attrs[] = 'data-source="' . esc_attr( $source ) . '"';
 		$row_attrs[] = 'data-annot="' . esc_attr( implode( ' ', $annotations ) ) . '"';
-		$row_attrs[] = 'data-saved="' . ( $checked ? 'true' : 'false' ) . '"';
+		$row_attrs[] = 'data-inhaled="' . ( $checked ? 'true' : 'false' ) . '"';
 		if ( $managed ) {
 			$row_attrs[] = 'data-managed="true"';
 		}
 
-		$cb_id = 'inhale_ab_' . md5( $name );
+		$cb_id        = 'inhale_ab_' . md5( $name );
+		$single_label = $checked
+			? /* translators: %s: ability name. */ __( 'Select %s for bulk action (currently inhaled)', 'inhale-mcp-abilities' )
+			: /* translators: %s: ability name. */ __( 'Select %s for bulk action (currently not inhaled)', 'inhale-mcp-abilities' );
 		?>
 		<tr<?php echo $row_classes ? ' class="' . esc_attr( implode( ' ', $row_classes ) ) . '"' : ''; ?> <?php echo implode( ' ', $row_attrs ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped above ?>>
 			<td class="col-check check-column">
 				<?php if ( $managed ) : ?>
-					<input type="checkbox" disabled aria-label="<?php echo esc_attr( sprintf( /* translators: %s: ability name. */ __( 'Managed by mcp-adapter, cannot toggle: %s', 'inhale-mcp-abilities' ), $name ) ); ?>" />
+					<input type="checkbox" disabled aria-label="<?php echo esc_attr( sprintf( /* translators: %s: ability name. */ __( 'Managed by mcp-adapter, cannot select: %s', 'inhale-mcp-abilities' ), $name ) ); ?>" />
 				<?php else : ?>
 					<input type="checkbox"
 						id="<?php echo esc_attr( $cb_id ); ?>"
 						class="inhale-ability-checkbox"
-						name="<?php echo esc_attr( INHALE_OPTION_NAME ); ?>[]"
+						name="abilities[]"
 						value="<?php echo esc_attr( $name ); ?>"
 						data-destructive="<?php echo $is_destructive ? '1' : '0'; ?>"
-						<?php checked( $checked ); ?>
-						aria-label="<?php echo esc_attr( sprintf( $checked ? /* translators: %s: ability name. */ __( 'Inhaled: %s', 'inhale-mcp-abilities' ) : /* translators: %s: ability name. */ __( 'Inhale %s', 'inhale-mcp-abilities' ), $name ) ); ?>" />
+						aria-label="<?php echo esc_attr( sprintf( $single_label, $name ) ); ?>" />
 				<?php endif; ?>
 			</td>
 			<td class="col-ability">
 				<span class="ability-name"><?php echo esc_html( $name ); ?></span>
-				<?php if ( $is_destructive && ! $managed ) : ?>
-					<span class="dest-note"><?php esc_html_e( 'Triggers a single browser confirmation on check.', 'inhale-mcp-abilities' ); ?></span>
+				<?php if ( ! $managed ) : ?>
+					<div class="row-actions">
+						<?php if ( $checked ) : ?>
+							<span class="exhale"><a href="#" class="inhale-row-action" data-action="exhale" data-ability="<?php echo esc_attr( $name ); ?>"><?php esc_html_e( 'Exhale', 'inhale-mcp-abilities' ); ?></a></span>
+						<?php else : ?>
+							<span class="inhale"><a href="#" class="inhale-row-action" data-action="inhale" data-ability="<?php echo esc_attr( $name ); ?>" data-destructive="<?php echo $is_destructive ? '1' : '0'; ?>"><?php esc_html_e( 'Inhale', 'inhale-mcp-abilities' ); ?></a></span>
+						<?php endif; ?>
+					</div>
 				<?php endif; ?>
 			</td>
 			<td class="col-source"><span class="source-name" title="<?php echo esc_attr( $source ); ?>"><?php echo esc_html( $source ); ?></span></td>
@@ -885,11 +997,12 @@ class Inhale_Settings_Page {
 				<?php if ( empty( $annotations ) ) : ?>
 					<span class="annot-none"><?php esc_html_e( 'no annotations', 'inhale-mcp-abilities' ); ?></span>
 				<?php else : ?>
+					<?php $inferred_class = $inferred ? ' inferred' : ''; ?>
 					<?php foreach ( $annotations as $flag ) : ?>
 						<?php if ( 'destructive' === $flag ) : ?>
-							<span class="annot destructive"><svg class="glyph" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" aria-hidden="true"><path d="M5 1.4L9 8.6H1z"/></svg><?php esc_html_e( 'destructive', 'inhale-mcp-abilities' ); ?></span>
+							<span class="annot destructive<?php echo esc_attr( $inferred_class ); ?>" <?php if ( $inferred ) : ?>title="<?php esc_attr_e( 'Inferred from name. The registering plugin did not declare this annotation.', 'inhale-mcp-abilities' ); ?>"<?php endif; ?>><svg class="glyph" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" aria-hidden="true"><path d="M5 1.4L9 8.6H1z"/></svg><?php esc_html_e( 'destructive', 'inhale-mcp-abilities' ); ?><?php if ( $inferred ) : ?><span class="annot-inferred-mark" aria-hidden="true">*</span><?php endif; ?></span>
 						<?php else : ?>
-							<span class="annot neutral"><?php echo esc_html( $flag ); ?></span>
+							<span class="annot neutral<?php echo esc_attr( $inferred_class ); ?>" <?php if ( $inferred ) : ?>title="<?php esc_attr_e( 'Inferred from name. The registering plugin did not declare this annotation.', 'inhale-mcp-abilities' ); ?>"<?php endif; ?>><?php echo esc_html( $flag ); ?><?php if ( $inferred ) : ?><span class="annot-inferred-mark" aria-hidden="true">*</span><?php endif; ?></span>
 						<?php endif; ?>
 					<?php endforeach; ?>
 				<?php endif; ?>

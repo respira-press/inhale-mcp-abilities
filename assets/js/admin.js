@@ -1,6 +1,13 @@
 /*!
  * Inhale: MCP Abilities admin behavior.
  * Vanilla JS, no jQuery, no build step.
+ *
+ * Pattern: standard wp-admin list table.
+ *  - Row checkbox = selection (not state).
+ *  - Status column = current inhaled state (server-rendered).
+ *  - Bulk actions dropdown + Apply = commits inhale/exhale immediately.
+ *  - Row-hover "Inhale" / "Exhale" link = single-row commit.
+ *  - No staged state, no dirty indicator, no save button.
  */
 (function () {
 	'use strict';
@@ -10,10 +17,7 @@
 		return;
 	}
 
-	/* ─── Theme toggle ────────────────────────────────────────────
-	 * Precedence: localStorage > wp-admin midnight/ectoplasm/modern
-	 * color scheme > prefers-color-scheme > light.
-	 */
+	/* ─── Theme toggle ────────────────────────────────────────── */
 	(function initTheme() {
 		var btn = document.getElementById('inhaleThemeToggle');
 		var STORE = 'inhale_mcp_abilities_theme';
@@ -47,10 +51,10 @@
 		}
 	})();
 
-	/* ─── Abilities table state + interaction ─────────────────── */
 	(function initTable() {
 		var tbody = document.getElementById('inhaleAbilitiesBody');
 		if (!tbody) { return; }
+		var form = document.getElementById('inhaleAbilitiesForm');
 		var allRows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
 		var dataRows = allRows.filter(function (tr) { return !tr.classList.contains('empty-state'); });
 		var originalOrder = dataRows.slice();
@@ -66,8 +70,6 @@
 		var resetLink = document.getElementById('inhaleResetFilters');
 		var visibleCounts = document.querySelectorAll('.inhale-wrap .inhale-visible-count');
 		var selectAllBoxes = document.querySelectorAll('.inhale-wrap .inhale-select-all');
-		var summaries = document.querySelectorAll('.inhale-wrap .inhale-inhaled-count');
-		var form = document.getElementById('inhaleAbilitiesForm');
 
 		var state = {
 			search: '',
@@ -86,6 +88,7 @@
 				source: tr.getAttribute('data-source') || '',
 				desc: descEl ? descEl.textContent.trim() : '',
 				annot: tr.getAttribute('data-annot') || '',
+				inhaled: tr.getAttribute('data-inhaled') === 'true',
 				managed: tr.getAttribute('data-managed') === 'true',
 				input: input
 			});
@@ -100,7 +103,7 @@
 				if (hay.indexOf(state.search) === -1) { return false; }
 			}
 
-			var inhaled = m.managed || (m.input && m.input.checked);
+			var inhaled = m.inhaled || m.managed;
 			switch (state.view) {
 				case 'inhaled':     if (!inhaled) { return false; } break;
 				case 'read-only':   if (m.annot.indexOf('read-only') === -1) { return false; } break;
@@ -120,7 +123,7 @@
 			if (!m) { return ''; }
 			if (col === 'status') {
 				if (m.managed) { return '1-managed'; }
-				return (m.input && m.input.checked) ? '0-inhaled' : '2-not';
+				return m.inhaled ? '0-inhaled' : '2-not';
 			}
 			return (m[col] || '').toLowerCase();
 		}
@@ -192,21 +195,8 @@
 				else { a.removeAttribute('aria-current'); }
 			});
 
-			var inhaledCount = dataRows.filter(function (tr) {
-				var m = meta.get(tr);
-				return m && (m.managed || (m.input && m.input.checked));
-			}).length;
-			var inhaledLink = document.querySelector('.inhale-wrap .subsubsub a[data-view="inhaled"] .count');
-			if (inhaledLink) { inhaledLink.textContent = '(' + inhaledCount + ')'; }
-
 			var anyFilter = state.search || state.view !== 'all' || sourceCount > 0 || state.sort.col !== null;
 			if (resetLink) { resetLink.classList.toggle('show', !!anyFilter); }
-
-			var inhaledNow = String(dataRows.filter(function (tr) {
-				var m = meta.get(tr);
-				return m && !m.managed && m.input && m.input.checked;
-			}).length);
-			summaries.forEach(function (el) { el.textContent = inhaledNow; });
 		}
 
 		function resetAll() {
@@ -293,112 +283,24 @@
 		}
 		if (resetLink) { resetLink.addEventListener('click', resetAll); }
 
-		// On checkbox change: Status pill, counts and filters all reflect
-		// the staged state (one consistent model). The only signal that
-		// something hasn't persisted is the amber row edge + the
-		// "Unsaved changes" indicator next to Save.
-		dataRows.forEach(function (tr) {
-			var m = meta.get(tr);
-			if (!m || m.managed || !m.input) { return; }
-			m.input.addEventListener('change', function () {
-				if (m.input.checked && m.annot.indexOf('destructive') !== -1) {
-					var ok = window.confirm('This ability can modify content on your site. Inhale it?');
-					if (!ok) { m.input.checked = false; }
-				}
-				var statusCell = tr.querySelector('.col-status');
-				if (statusCell) {
-					if (m.input.checked) {
-						statusCell.innerHTML = '<span class="status-pill inhaled">Inhaled</span>';
-					} else {
-						statusCell.innerHTML = '<span class="status-empty" aria-label="Not inhaled">—</span>';
-					}
-				}
-				updateRowPending(tr);
-				apply();
-			});
-		});
-
-		function updateRowPending(tr) {
-			var m = meta.get(tr);
-			if (!m || !m.input) { return; }
-			var saved = tr.getAttribute('data-saved') === 'true';
-			var staged = !!m.input.checked;
-			tr.classList.toggle('inhale-pending', saved !== staged);
-		}
-
+		/* Select-all (top + bottom) toggles the row checkboxes (selection
+		 * for bulk action). Only flips visible, non-managed rows. */
 		selectAllBoxes.forEach(function (box) {
 			box.addEventListener('change', function () {
 				dataRows.forEach(function (tr) {
 					var m = meta.get(tr);
-					if (!m || m.managed || tr.classList.contains('is-hidden')) { return; }
-					if (m.input.checked !== box.checked) {
-						m.input.checked = box.checked;
-						m.input.dispatchEvent(new Event('change'));
-					}
+					if (!m || m.managed || tr.classList.contains('is-hidden') || tr.classList.contains('inhale-pg-hidden')) { return; }
+					if (!m.input) { return; }
+					m.input.checked = box.checked;
+				});
+				// Sync the other select-all box.
+				selectAllBoxes.forEach(function (other) {
+					if (other !== box) { other.checked = box.checked; }
 				});
 			});
 		});
 
-		var quickActionButtons = document.querySelectorAll('.inhale-wrap .inhale-quickaction');
-		quickActionButtons.forEach(function (btn) {
-			btn.addEventListener('click', function () {
-				var action = btn.getAttribute('data-action');
-				if (action !== 'inhale' && action !== 'exhale') { return; }
-
-				var targetChecked = (action === 'inhale');
-
-				// Operate on every filter-matching, non-managed row whose
-				// state needs to flip. Pagination is ignored (acts across
-				// all pages of the filtered set).
-				var toFlip = [];
-				dataRows.forEach(function (tr) {
-					var m = meta.get(tr);
-					if (!m || m.managed) { return; }
-					if (!rowMatches(tr)) { return; }
-					if (m.input.checked === targetChecked) { return; }
-					toFlip.push(tr);
-				});
-
-				if (toFlip.length === 0) { return; }
-
-				if (targetChecked) {
-					var destructiveCount = 0;
-					toFlip.forEach(function (tr) {
-						var m = meta.get(tr);
-						if (m && m.annot.indexOf('destructive') !== -1) {
-							destructiveCount++;
-						}
-					});
-					if (destructiveCount > 0) {
-						var msg = destructiveCount === 1
-							? 'One of the filtered abilities can modify content on your site. Inhale it?'
-							: (destructiveCount + ' of the filtered abilities can modify content on your site. Inhale them?');
-						if (!window.confirm(msg)) { return; }
-					}
-				}
-
-				toFlip.forEach(function (tr) {
-					var m = meta.get(tr);
-					if (!m || !m.input) { return; }
-					m.input.checked = targetChecked;
-					var statusCell = tr.querySelector('.col-status');
-					if (statusCell) {
-						if (targetChecked) {
-							statusCell.innerHTML = '<span class="status-pill inhaled">Inhaled</span>';
-						} else {
-							statusCell.innerHTML = '<span class="status-empty" aria-label="Not inhaled">—</span>';
-						}
-					}
-					updateRowPending(tr);
-				});
-				apply();
-			});
-		});
-
-		/* ─── Pagination ───────────────────────────────────────────
-		 * Client-side: every row stays in the DOM (so all checkbox
-		 * state submits with the form). We only hide rows outside
-		 * the current page. Page changes never touch row state. */
+		/* ─── Pagination (client-side) ──────────────────────────── */
 		var perPage = 50;
 		var currentPage = 1;
 		var perPageSelects = document.querySelectorAll('.inhale-wrap .inhale-pg-perpage');
@@ -409,13 +311,10 @@
 		var nextButtons = document.querySelectorAll('.inhale-wrap .inhale-pg-next');
 		var lastButtons = document.querySelectorAll('.inhale-wrap .inhale-pg-last');
 
-		function getFilteredRows() {
-			return dataRows.filter(rowMatches);
-		}
+		function getFilteredRows() { return dataRows.filter(rowMatches); }
 		function getTotalPages() {
 			if (perPage === 0) { return 1; }
-			var filtered = getFilteredRows();
-			return Math.max(1, Math.ceil(filtered.length / perPage));
+			return Math.max(1, Math.ceil(getFilteredRows().length / perPage));
 		}
 		function clampPage() {
 			var t = getTotalPages();
@@ -426,9 +325,6 @@
 			clampPage();
 			var filtered = getFilteredRows();
 			var totalPages = getTotalPages();
-
-			// Mark pagination visibility on filtered rows; non-filtered rows
-			// keep is-hidden from rowMatches/apply() and are unaffected.
 			if (perPage === 0) {
 				filtered.forEach(function (tr) { tr.classList.remove('inhale-pg-hidden'); });
 			} else {
@@ -438,8 +334,6 @@
 					tr.classList.toggle('inhale-pg-hidden', idx < start || idx >= end);
 				});
 			}
-
-			// Sync controls
 			currentPageInputs.forEach(function (input) { input.value = String(currentPage); });
 			totalPagesEls.forEach(function (el) { el.textContent = String(totalPages); });
 			perPageSelects.forEach(function (sel) { sel.value = String(perPage); });
@@ -449,12 +343,10 @@
 			lastButtons.forEach(function (b) { b.disabled = currentPage >= totalPages; });
 		}
 
-		// Wrap apply() so pagination always runs after filter/sort.
 		var coreApply = apply;
 		apply = function () {
 			coreApply();
 			applyPagination();
-			updateDirty();
 		};
 
 		firstButtons.forEach(function (b) { b.addEventListener('click', function () { currentPage = 1; applyPagination(); }); });
@@ -477,7 +369,6 @@
 			});
 		});
 
-		// When filters change, reset to page 1.
 		var resetPageOn = function () { currentPage = 1; };
 		if (searchInput) { searchInput.addEventListener('input', resetPageOn); }
 		subsubsubLinks.forEach(function (a) { a.addEventListener('click', resetPageOn); });
@@ -485,67 +376,100 @@
 		if (filterClearBtn) { filterClearBtn.addEventListener('click', resetPageOn); }
 		if (resetLink) { resetLink.addEventListener('click', resetPageOn); }
 
-		/* ─── Unsaved-changes indicator ───────────────────────────
-		 * Snapshot the saved state on first paint; flag dirty whenever
-		 * the current set of checked values diverges. */
-		var dirtyIndicators = document.querySelectorAll('.inhale-wrap .inhale-dirty-indicator');
-		var savedSnapshot = (function () {
-			var s = {};
-			dataRows.forEach(function (tr) {
-				var m = meta.get(tr);
-				if (m && m.input && m.input.checked) { s[m.ability] = true; }
-			});
-			return s;
-		})();
+		/* ─── Bulk action Apply ─────────────────────────────────── */
+		var bulkSelectsTop = document.getElementById('inhale-bulk-action-top');
+		var bulkSelectsBot = document.getElementById('inhale-bulk-action-bottom');
+		var applyButtons = document.querySelectorAll('.inhale-wrap .inhale-bulk-apply');
 
-		function updateDirty() {
-			if (!dirtyIndicators.length) { return; }
-			var current = {};
-			dataRows.forEach(function (tr) {
-				var m = meta.get(tr);
-				if (m && m.input && m.input.checked) { current[m.ability] = true; }
-			});
-			var dirty = false;
-			var keysA = Object.keys(savedSnapshot);
-			var keysB = Object.keys(current);
-			if (keysA.length !== keysB.length) {
-				dirty = true;
-			} else {
-				for (var i = 0; i < keysA.length; i++) {
-					if (!current[keysA[i]]) { dirty = true; break; }
-				}
-			}
-			dirtyIndicators.forEach(function (el) { el.hidden = !dirty; });
+		function syncBulkSelects(source) {
+			if (!bulkSelectsTop || !bulkSelectsBot) { return; }
+			if (source === bulkSelectsTop) { bulkSelectsBot.value = bulkSelectsTop.value; }
+			else                            { bulkSelectsTop.value = bulkSelectsBot.value; }
 		}
+		if (bulkSelectsTop) { bulkSelectsTop.addEventListener('change', function () { syncBulkSelects(bulkSelectsTop); }); }
+		if (bulkSelectsBot) { bulkSelectsBot.addEventListener('change', function () { syncBulkSelects(bulkSelectsBot); }); }
 
 		if (form) {
 			form.addEventListener('submit', function (e) {
-				var destructiveNewlyChecked = [];
-				dataRows.forEach(function (tr) {
-					var m = meta.get(tr);
-					if (!m || m.managed || !m.input || !m.input.checked) { return; }
-					var wasInhaled = m.input.getAttribute('data-was-inhaled') === '1';
-					var isDestructive = m.input.getAttribute('data-destructive') === '1';
-					if (isDestructive && !wasInhaled) {
-						destructiveNewlyChecked.push(m.ability);
-					}
-				});
-				if (destructiveNewlyChecked.length > 0) {
-					var msg = destructiveNewlyChecked.length === 1
-						? 'You are about to expose 1 destructive ability. This ability can modify content on your site. Continue?'
-						: ('You are about to expose ' + destructiveNewlyChecked.length + ' destructive abilities. These abilities can modify content on your site. Continue?');
-					if (!window.confirm(msg)) {
-						e.preventDefault();
+				// Only run guard on the bulk-Apply submit (the row-action
+				// link path skips this guard because it sets up the form
+				// itself before submitting).
+				if (form.getAttribute('data-skip-guard') === '1') {
+					form.removeAttribute('data-skip-guard');
+					return;
+				}
+
+				var action = bulkSelectsTop && bulkSelectsTop.value && bulkSelectsTop.value !== '-1'
+					? bulkSelectsTop.value
+					: (bulkSelectsBot ? bulkSelectsBot.value : '-1');
+				if (action !== 'inhale' && action !== 'exhale') {
+					e.preventDefault();
+					alert('Choose a bulk action before clicking Apply.');
+					return;
+				}
+
+				var selected = form.querySelectorAll('input.inhale-ability-checkbox:checked');
+				if (!selected.length) {
+					e.preventDefault();
+					alert('Select at least one ability before applying a bulk action.');
+					return;
+				}
+
+				if (action === 'inhale') {
+					var destructiveNames = [];
+					selected.forEach(function (cb) {
+						if (cb.getAttribute('data-destructive') === '1') {
+							var tr = cb.closest('tr');
+							var m = tr ? meta.get(tr) : null;
+							destructiveNames.push(m ? m.ability : cb.value);
+						}
+					});
+					if (destructiveNames.length) {
+						var msg = destructiveNames.length === 1
+							? 'Inhale "' + destructiveNames[0] + '"? This ability can modify content on your site.'
+							: 'Inhale ' + destructiveNames.length + ' destructive abilities? They can modify content on your site.';
+						if (!window.confirm(msg)) {
+							e.preventDefault();
+							return;
+						}
 					}
 				}
 			});
 		}
 
-		dataRows.forEach(function (tr) {
-			var m = meta.get(tr);
-			if (m && m.input) {
-				m.input.setAttribute('data-was-inhaled', m.input.checked ? '1' : '0');
-			}
+		/* ─── Row-hover quick action ────────────────────────────── */
+		var rowActions = document.querySelectorAll('.inhale-wrap .inhale-row-action');
+		rowActions.forEach(function (link) {
+			link.addEventListener('click', function (e) {
+				e.preventDefault();
+				if (!form) { return; }
+
+				var action = link.getAttribute('data-action');
+				var ability = link.getAttribute('data-ability');
+				if (!action || !ability) { return; }
+
+				if (action === 'inhale' && link.getAttribute('data-destructive') === '1') {
+					if (!window.confirm('Inhale "' + ability + '"? This ability can modify content on your site.')) {
+						return;
+					}
+				}
+
+				// Uncheck every row, then check just the target row.
+				dataRows.forEach(function (tr) {
+					var m = meta.get(tr);
+					if (!m || !m.input || m.managed) { return; }
+					m.input.checked = (m.ability === ability);
+				});
+
+				// Set the bulk action dropdowns to the chosen verb.
+				if (bulkSelectsTop) { bulkSelectsTop.value = action; }
+				if (bulkSelectsBot) { bulkSelectsBot.value = action; }
+
+				// Skip the bulk-apply submit guard (we already validated)
+				// and submit the form.
+				form.setAttribute('data-skip-guard', '1');
+				form.submit();
+			});
 		});
 
 		apply();
