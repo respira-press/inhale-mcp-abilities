@@ -42,8 +42,8 @@ class Inhale_Settings_Page {
 	 */
 	public function register_menu() {
 		add_options_page(
-			__( 'Inhale MCP Abilities', 'inhale-mcp-abilities' ),
-			__( 'Inhale MCP Abilities', 'inhale-mcp-abilities' ),
+			__( 'Inhale: MCP Abilities', 'inhale-mcp-abilities' ),
+			__( 'Inhale: MCP Abilities', 'inhale-mcp-abilities' ),
 			self::CAPABILITY,
 			self::MENU_SLUG,
 			array( $this, 'render_page' )
@@ -455,7 +455,7 @@ class Inhale_Settings_Page {
 					<button type="button"
 						class="theme-toggle"
 						id="inhaleThemeToggle"
-						aria-label="<?php esc_attr_e( 'Toggle light or dark mode for the Inhale plugin', 'inhale-mcp-abilities' ); ?>"
+						aria-label="<?php esc_attr_e( 'Toggle light or dark mode for the Inhale: MCP Abilities plugin', 'inhale-mcp-abilities' ); ?>"
 						data-tooltip="<?php esc_attr_e( 'Toggle dark mode', 'inhale-mcp-abilities' ); ?>">
 						<svg class="icon-sun" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
 							<circle cx="10" cy="10" r="3.5"/>
@@ -692,19 +692,19 @@ class Inhale_Settings_Page {
 			<hr class="divider"/>
 
 			<section class="section" aria-labelledby="inhale-about-h">
-				<h2 id="inhale-about-h"><?php esc_html_e( 'About Inhale', 'inhale-mcp-abilities' ); ?></h2>
-				<p><?php esc_html_e( 'Inhale is a settings-only utility. It does not run MCP servers, transports, or authentication. Those are handled by the official WordPress MCP Adapter, which Inhale extends.', 'inhale-mcp-abilities' ); ?></p>
-				<p><?php esc_html_e( 'Every ability you inhale still runs its own permission checks before execution. Inhale controls visibility, not authorization.', 'inhale-mcp-abilities' ); ?></p>
-				<p class="muted"><?php esc_html_e( 'Model Context Protocol (MCP) is an open specification originally developed by Anthropic. Inhale is a third-party plugin and is not affiliated with, endorsed by, or sponsored by Anthropic. Respira is an independent company.', 'inhale-mcp-abilities' ); ?></p>
+				<h2 id="inhale-about-h"><?php esc_html_e( 'About Inhale: MCP Abilities', 'inhale-mcp-abilities' ); ?></h2>
+				<p><?php esc_html_e( 'Inhale: MCP Abilities is a settings-only utility. It does not run MCP servers, transports, or authentication. Those are handled by the official WordPress MCP Adapter, which the Inhale: MCP Abilities plugin extends.', 'inhale-mcp-abilities' ); ?></p>
+				<p><?php esc_html_e( 'Every ability you inhale still runs its own permission checks before execution. The Inhale: MCP Abilities plugin controls visibility, not authorization.', 'inhale-mcp-abilities' ); ?></p>
+				<p class="muted"><?php esc_html_e( 'Model Context Protocol (MCP) is an open specification originally developed by Anthropic. Inhale: MCP Abilities is a third-party plugin and is not affiliated with, endorsed by, or sponsored by Anthropic. Respira is an independent company.', 'inhale-mcp-abilities' ); ?></p>
 			</section>
 
 			<hr class="divider"/>
 
 			<p class="muted inhale-respira-footer"><?php
 				echo wp_kses(
-					/* translators: 1: link to respira.press, 2: link to respira.press. */
+					/* translators: 1: link to Respira for WordPress, 2: link to respira.press. */
 					sprintf(
-						__( 'Inhale is built by Respira. Respira ships AI infrastructure for WordPress, including %1$s, the safety layer for AI-driven edits across 12 page builders. Learn more at %2$s.', 'inhale-mcp-abilities' ),
+						__( 'The Inhale: MCP Abilities plugin is built by Respira, which ships AI infrastructure for WordPress. The main product is %1$s, a safety layer that registers 130+ abilities across 12 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 6 more) with snapshot-before-write protection, render validation and one-click rollback. Free add-ons extend Respira\'s coverage to WooCommerce, SEO and newsletters. Learn more at %2$s.', 'inhale-mcp-abilities' ),
 						'<a href="https://respira.press" target="_blank" rel="noopener noreferrer">Respira for WordPress</a>',
 						'<a href="https://respira.press" target="_blank" rel="noopener noreferrer">respira.press</a>'
 					),
@@ -818,6 +818,7 @@ class Inhale_Settings_Page {
 		$row_attrs  = array();
 		$row_attrs[] = 'data-source="' . esc_attr( $source ) . '"';
 		$row_attrs[] = 'data-annot="' . esc_attr( implode( ' ', $annotations ) ) . '"';
+		$row_attrs[] = 'data-saved="' . ( $checked ? 'true' : 'false' ) . '"';
 		if ( $managed ) {
 			$row_attrs[] = 'data-managed="true"';
 		}

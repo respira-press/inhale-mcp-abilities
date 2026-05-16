@@ -294,6 +294,10 @@
 		}
 		if (resetLink) { resetLink.addEventListener('click', resetAll); }
 
+		// On checkbox change: do NOT update the status pill (which always
+		// reflects the saved state). Instead, mark the row as pending so
+		// the user sees a clear divergence between "what I chose" and
+		// "what's been saved". Destructive confirm still fires here.
 		dataRows.forEach(function (tr) {
 			var m = meta.get(tr);
 			if (!m || m.managed || !m.input) { return; }
@@ -302,17 +306,20 @@
 					var ok = window.confirm('This ability can modify content on your site. Inhale it?');
 					if (!ok) { m.input.checked = false; }
 				}
-				var statusCell = tr.querySelector('.col-status');
-				if (statusCell) {
-					if (m.input.checked) {
-						statusCell.innerHTML = '<span class="status-pill inhaled">Inhaled</span>';
-					} else {
-						statusCell.innerHTML = '<span class="status-empty" aria-label="Not inhaled">—</span>';
-					}
-				}
+				updateRowPending(tr);
 				apply();
 			});
 		});
+
+		function updateRowPending(tr) {
+			var m = meta.get(tr);
+			if (!m || !m.input) { return; }
+			var saved = tr.getAttribute('data-saved') === 'true';
+			var pending = !!m.input.checked;
+			tr.classList.toggle('inhale-pending', saved !== pending);
+			tr.classList.toggle('inhale-pending-inhale', !saved && pending);
+			tr.classList.toggle('inhale-pending-exhale', saved && !pending);
+		}
 
 		selectAllBoxes.forEach(function (box) {
 			box.addEventListener('change', function () {
@@ -369,14 +376,7 @@
 					var m = meta.get(tr);
 					if (!m || !m.input) { return; }
 					m.input.checked = targetChecked;
-					var statusCell = tr.querySelector('.col-status');
-					if (statusCell) {
-						if (targetChecked) {
-							statusCell.innerHTML = '<span class="status-pill inhaled">Inhaled</span>';
-						} else {
-							statusCell.innerHTML = '<span class="status-empty" aria-label="Not inhaled">—</span>';
-						}
-					}
+					updateRowPending(tr);
 				});
 				apply();
 			});

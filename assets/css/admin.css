@@ -461,6 +461,37 @@
  * hides the row. */
 .inhale-wrap .wp-list-table tbody tr.inhale-pg-hidden { display: none; }
 
+/* Pending-row treatment. The Status column always shows the SAVED state
+ * so users can tell what's persisted; rows whose checkbox state has
+ * diverged from the saved state get a calm amber left-edge accent and
+ * the cells pick up a subtle warning tint. The dirty indicator at the
+ * bottom of the form is the second signal. */
+.inhale-wrap .wp-list-table.inhale-table > tbody > tr.inhale-pending > td {
+	background: var(--warn-bg);
+	box-shadow: inset 3px 0 0 0 var(--warn-border);
+}
+.inhale-wrap .wp-list-table.inhale-table > tbody > tr.inhale-pending:hover > td {
+	background: var(--warn-bg);
+}
+.inhale-wrap .wp-list-table tbody tr.inhale-pending .col-status::after {
+	content: attr(data-pending-label);
+	display: block;
+	font-family: var(--rp-font-mono);
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--warn-fg);
+	margin-top: 4px;
+	line-height: 1.3;
+}
+.inhale-wrap .wp-list-table tbody tr.inhale-pending-inhale .col-status::after {
+	content: "will inhale on save";
+}
+.inhale-wrap .wp-list-table tbody tr.inhale-pending-exhale .col-status::after {
+	content: "will exhale on save";
+}
+
 /* Buttons (scoped, lest we override wp-admin's defaults elsewhere) */
 .inhale-wrap .button {
 	display: inline-flex;
