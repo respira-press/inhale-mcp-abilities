@@ -327,31 +327,28 @@
 			});
 		});
 
-		var bulkApplyButtons = document.querySelectorAll('.inhale-wrap .inhale-bulk-apply');
-		bulkApplyButtons.forEach(function (btn) {
+		var quickActionButtons = document.querySelectorAll('.inhale-wrap .inhale-quickaction');
+		quickActionButtons.forEach(function (btn) {
 			btn.addEventListener('click', function () {
-				var select = btn.parentNode.querySelector('select.inhale-bulk-action');
-				if (!select) { return; }
-				var action = select.value;
+				var action = btn.getAttribute('data-action');
 				if (action !== 'inhale' && action !== 'exhale') { return; }
 
 				var targetChecked = (action === 'inhale');
 
-				// Operate on every visible, non-managed row whose state needs
-				// to flip. Row's current state is the canonical inhale state;
-				// the bulk action moves all visible rows to the chosen state.
+				// Operate on every filter-matching, non-managed row whose
+				// state needs to flip. Pagination is ignored (acts across
+				// all pages of the filtered set).
 				var toFlip = [];
 				dataRows.forEach(function (tr) {
 					var m = meta.get(tr);
-					if (!m || m.managed || tr.classList.contains('is-hidden')) { return; }
+					if (!m || m.managed) { return; }
+					if (!rowMatches(tr)) { return; }
 					if (m.input.checked === targetChecked) { return; }
 					toFlip.push(tr);
 				});
 
-				if (toFlip.length === 0) { select.value = '-1'; return; }
+				if (toFlip.length === 0) { return; }
 
-				// Single destructive confirmation if any newly-inhaled ability
-				// is destructive.
 				if (targetChecked) {
 					var destructiveCount = 0;
 					toFlip.forEach(function (tr) {
@@ -362,12 +359,9 @@
 					});
 					if (destructiveCount > 0) {
 						var msg = destructiveCount === 1
-							? 'One of the visible abilities can modify content on your site. Inhale it?'
-							: (destructiveCount + ' of the visible abilities can modify content on your site. Inhale them?');
-						if (!window.confirm(msg)) {
-							select.value = '-1';
-							return;
-						}
+							? 'One of the filtered abilities can modify content on your site. Inhale it?'
+							: (destructiveCount + ' of the filtered abilities can modify content on your site. Inhale them?');
+						if (!window.confirm(msg)) { return; }
 					}
 				}
 
@@ -384,10 +378,132 @@
 						}
 					}
 				});
-				select.value = '-1';
 				apply();
 			});
 		});
+
+		/* ─── Pagination ───────────────────────────────────────────
+		 * Client-side: every row stays in the DOM (so all checkbox
+		 * state submits with the form). We only hide rows outside
+		 * the current page. Page changes never touch row state. */
+		var perPage = 50;
+		var currentPage = 1;
+		var perPageSelects = document.querySelectorAll('.inhale-wrap .inhale-pg-perpage');
+		var currentPageInputs = document.querySelectorAll('.inhale-wrap .inhale-pg-current');
+		var totalPagesEls = document.querySelectorAll('.inhale-wrap .inhale-pg-total');
+		var firstButtons = document.querySelectorAll('.inhale-wrap .inhale-pg-first');
+		var prevButtons = document.querySelectorAll('.inhale-wrap .inhale-pg-prev');
+		var nextButtons = document.querySelectorAll('.inhale-wrap .inhale-pg-next');
+		var lastButtons = document.querySelectorAll('.inhale-wrap .inhale-pg-last');
+
+		function getFilteredRows() {
+			return dataRows.filter(rowMatches);
+		}
+		function getTotalPages() {
+			if (perPage === 0) { return 1; }
+			var filtered = getFilteredRows();
+			return Math.max(1, Math.ceil(filtered.length / perPage));
+		}
+		function clampPage() {
+			var t = getTotalPages();
+			if (currentPage > t) { currentPage = t; }
+			if (currentPage < 1) { currentPage = 1; }
+		}
+		function applyPagination() {
+			clampPage();
+			var filtered = getFilteredRows();
+			var totalPages = getTotalPages();
+
+			// Mark pagination visibility on filtered rows; non-filtered rows
+			// keep is-hidden from rowMatches/apply() and are unaffected.
+			if (perPage === 0) {
+				filtered.forEach(function (tr) { tr.classList.remove('inhale-pg-hidden'); });
+			} else {
+				var start = (currentPage - 1) * perPage;
+				var end = start + perPage;
+				filtered.forEach(function (tr, idx) {
+					tr.classList.toggle('inhale-pg-hidden', idx < start || idx >= end);
+				});
+			}
+
+			// Sync controls
+			currentPageInputs.forEach(function (input) { input.value = String(currentPage); });
+			totalPagesEls.forEach(function (el) { el.textContent = String(totalPages); });
+			perPageSelects.forEach(function (sel) { sel.value = String(perPage); });
+			firstButtons.forEach(function (b) { b.disabled = currentPage <= 1; });
+			prevButtons.forEach(function (b) { b.disabled = currentPage <= 1; });
+			nextButtons.forEach(function (b) { b.disabled = currentPage >= totalPages; });
+			lastButtons.forEach(function (b) { b.disabled = currentPage >= totalPages; });
+		}
+
+		// Wrap apply() so pagination always runs after filter/sort.
+		var coreApply = apply;
+		apply = function () {
+			coreApply();
+			applyPagination();
+			updateDirty();
+		};
+
+		firstButtons.forEach(function (b) { b.addEventListener('click', function () { currentPage = 1; applyPagination(); }); });
+		prevButtons.forEach(function (b) { b.addEventListener('click', function () { currentPage = Math.max(1, currentPage - 1); applyPagination(); }); });
+		nextButtons.forEach(function (b) { b.addEventListener('click', function () { currentPage = Math.min(getTotalPages(), currentPage + 1); applyPagination(); }); });
+		lastButtons.forEach(function (b) { b.addEventListener('click', function () { currentPage = getTotalPages(); applyPagination(); }); });
+		currentPageInputs.forEach(function (input) {
+			input.addEventListener('change', function () {
+				var n = parseInt(input.value, 10);
+				if (isNaN(n) || n < 1) { n = 1; }
+				currentPage = n;
+				applyPagination();
+			});
+		});
+		perPageSelects.forEach(function (sel) {
+			sel.addEventListener('change', function () {
+				perPage = parseInt(sel.value, 10) || 0;
+				currentPage = 1;
+				applyPagination();
+			});
+		});
+
+		// When filters change, reset to page 1.
+		var resetPageOn = function () { currentPage = 1; };
+		if (searchInput) { searchInput.addEventListener('input', resetPageOn); }
+		subsubsubLinks.forEach(function (a) { a.addEventListener('click', resetPageOn); });
+		filterCheckboxes.forEach(function (cb) { cb.addEventListener('change', resetPageOn); });
+		if (filterClearBtn) { filterClearBtn.addEventListener('click', resetPageOn); }
+		if (resetLink) { resetLink.addEventListener('click', resetPageOn); }
+
+		/* ─── Unsaved-changes indicator ───────────────────────────
+		 * Snapshot the saved state on first paint; flag dirty whenever
+		 * the current set of checked values diverges. */
+		var dirtyIndicator = document.getElementById('inhaleDirtyIndicator');
+		var savedSnapshot = (function () {
+			var s = {};
+			dataRows.forEach(function (tr) {
+				var m = meta.get(tr);
+				if (m && m.input && m.input.checked) { s[m.ability] = true; }
+			});
+			return s;
+		})();
+
+		function updateDirty() {
+			if (!dirtyIndicator) { return; }
+			var current = {};
+			dataRows.forEach(function (tr) {
+				var m = meta.get(tr);
+				if (m && m.input && m.input.checked) { current[m.ability] = true; }
+			});
+			var dirty = false;
+			var keysA = Object.keys(savedSnapshot);
+			var keysB = Object.keys(current);
+			if (keysA.length !== keysB.length) {
+				dirty = true;
+			} else {
+				for (var i = 0; i < keysA.length; i++) {
+					if (!current[keysA[i]]) { dirty = true; break; }
+				}
+			}
+			dirtyIndicator.hidden = !dirty;
+		}
 
 		if (form) {
 			form.addEventListener('submit', function (e) {

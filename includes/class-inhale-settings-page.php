@@ -517,22 +517,7 @@ class Inhale_Settings_Page {
 					</div>
 				</div>
 
-				<div class="tablenav top">
-					<div class="bulkactions">
-						<label for="inhale-bulk-action-top" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'inhale-mcp-abilities' ); ?></label>
-						<select id="inhale-bulk-action-top" class="inhale-bulk-action">
-							<option value="-1"><?php esc_html_e( 'Bulk actions', 'inhale-mcp-abilities' ); ?></option>
-							<option value="inhale"><?php esc_html_e( 'Inhale all visible', 'inhale-mcp-abilities' ); ?></option>
-							<option value="exhale"><?php esc_html_e( 'Exhale all visible', 'inhale-mcp-abilities' ); ?></option>
-						</select>
-						<button type="button" class="button inhale-bulk-apply"><?php esc_html_e( 'Apply', 'inhale-mcp-abilities' ); ?></button>
-					</div>
-					<div class="pagination">
-						<span class="displaying-num"><span class="inhale-visible-count"><?php echo (int) $counts['all']; ?></span> <?php
-							/* translators: %d: total count of registered abilities. */
-							echo esc_html( sprintf( __( 'of %d items', 'inhale-mcp-abilities' ), (int) $counts['all'] ) ); ?></span>
-					</div>
-				</div>
+				<?php $this->render_tablenav( 'top', $counts ); ?>
 
 				<table class="wp-list-table widefat fixed inhale-table" role="grid" id="inhaleAbilitiesTable">
 					<thead>
@@ -612,26 +597,16 @@ class Inhale_Settings_Page {
 					</tfoot>
 				</table>
 
-				<div class="tablenav bottom">
-					<div class="bulkactions">
-						<label for="inhale-bulk-action-bottom" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'inhale-mcp-abilities' ); ?></label>
-						<select id="inhale-bulk-action-bottom" class="inhale-bulk-action">
-							<option value="-1"><?php esc_html_e( 'Bulk actions', 'inhale-mcp-abilities' ); ?></option>
-							<option value="inhale"><?php esc_html_e( 'Inhale all visible', 'inhale-mcp-abilities' ); ?></option>
-							<option value="exhale"><?php esc_html_e( 'Exhale all visible', 'inhale-mcp-abilities' ); ?></option>
-						</select>
-						<button type="button" class="button inhale-bulk-apply"><?php esc_html_e( 'Apply', 'inhale-mcp-abilities' ); ?></button>
-					</div>
-					<div class="pagination">
-						<span class="displaying-num"><span class="inhale-visible-count"><?php echo (int) $counts['all']; ?></span> <?php
-							/* translators: %d: total count of registered abilities. */
-							echo esc_html( sprintf( __( 'of %d items', 'inhale-mcp-abilities' ), (int) $counts['all'] ) ); ?></span>
-					</div>
-				</div>
+				<?php $this->render_tablenav( 'bottom', $counts ); ?>
 
 				<div class="save-row">
-					<div class="summary"><strong class="inhale-inhaled-count"><?php echo (int) $counts['inhaled']; ?></strong>
+					<div class="summary">
+						<strong class="inhale-inhaled-count"><?php echo (int) $counts['inhaled']; ?></strong>
 						<?php esc_html_e( 'abilities currently inhaled', 'inhale-mcp-abilities' ); ?>
+						<span class="inhale-dirty-indicator" id="inhaleDirtyIndicator" hidden>
+							<span class="inhale-dirty-dot" aria-hidden="true"></span>
+							<?php esc_html_e( 'Unsaved changes', 'inhale-mcp-abilities' ); ?>
+						</span>
 					</div>
 					<?php submit_button( __( 'Save changes', 'inhale-mcp-abilities' ), 'primary large', 'submit', false ); ?>
 				</div>
@@ -741,6 +716,80 @@ class Inhale_Settings_Page {
 					)
 				);
 			?></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render the tablenav row (quick actions on the left, pagination on the
+	 * right). Used both above and below the abilities table.
+	 *
+	 * @param string             $position 'top' or 'bottom'.
+	 * @param array<string, int> $counts   View counts for displaying-num.
+	 */
+	private function render_tablenav( $position, $counts ) {
+		$position    = ( 'top' === $position ) ? 'top' : 'bottom';
+		$total       = (int) $counts['all'];
+		$current_in  = (int) $counts['inhaled'];
+		?>
+		<div class="tablenav <?php echo esc_attr( $position ); ?>">
+			<div class="inhale-quickactions">
+				<button
+					type="button"
+					class="button inhale-quickaction"
+					data-action="inhale"
+					title="<?php esc_attr_e( 'Inhale every ability matching the current filter. You will still need to click Save changes to persist.', 'inhale-mcp-abilities' ); ?>">
+					<?php esc_html_e( 'Inhale all filtered', 'inhale-mcp-abilities' ); ?>
+				</button>
+				<button
+					type="button"
+					class="button inhale-quickaction"
+					data-action="exhale"
+					title="<?php esc_attr_e( 'Exhale every ability matching the current filter. You will still need to click Save changes to persist.', 'inhale-mcp-abilities' ); ?>">
+					<?php esc_html_e( 'Exhale all filtered', 'inhale-mcp-abilities' ); ?>
+				</button>
+			</div>
+			<div class="tablenav-pages">
+				<span class="displaying-num">
+					<span class="inhale-visible-count"><?php echo (int) $total; ?></span>
+					<?php
+					/* translators: %d: total count of registered abilities. */
+					echo esc_html( sprintf( _n( 'of %d ability', 'of %d abilities', $total, 'inhale-mcp-abilities' ), $total ) );
+					?>
+				</span>
+				<span class="pagination-links" data-position="<?php echo esc_attr( $position ); ?>">
+					<button type="button" class="button inhale-pg-first" aria-label="<?php esc_attr_e( 'First page', 'inhale-mcp-abilities' ); ?>" disabled>&laquo;</button>
+					<button type="button" class="button inhale-pg-prev" aria-label="<?php esc_attr_e( 'Previous page', 'inhale-mcp-abilities' ); ?>" disabled>&lsaquo;</button>
+					<span class="paging-input">
+						<label class="screen-reader-text" for="inhale-current-page-<?php echo esc_attr( $position ); ?>"><?php esc_html_e( 'Current page', 'inhale-mcp-abilities' ); ?></label>
+						<input
+							class="current-page inhale-pg-current"
+							id="inhale-current-page-<?php echo esc_attr( $position ); ?>"
+							type="text"
+							value="1"
+							size="2"
+							autocomplete="off"
+							aria-describedby="inhale-pg-total-<?php echo esc_attr( $position ); ?>"
+						/>
+						<span class="tablenav-paging-text">
+							<?php esc_html_e( 'of', 'inhale-mcp-abilities' ); ?>
+							<span class="total-pages inhale-pg-total" id="inhale-pg-total-<?php echo esc_attr( $position ); ?>">1</span>
+						</span>
+					</span>
+					<button type="button" class="button inhale-pg-next" aria-label="<?php esc_attr_e( 'Next page', 'inhale-mcp-abilities' ); ?>" disabled>&rsaquo;</button>
+					<button type="button" class="button inhale-pg-last" aria-label="<?php esc_attr_e( 'Last page', 'inhale-mcp-abilities' ); ?>" disabled>&raquo;</button>
+				</span>
+				<label class="inhale-perpage">
+					<span class="screen-reader-text"><?php esc_html_e( 'Items per page', 'inhale-mcp-abilities' ); ?></span>
+					<select class="inhale-pg-perpage">
+						<option value="20">20</option>
+						<option value="50" selected>50</option>
+						<option value="100">100</option>
+						<option value="0"><?php esc_html_e( 'All', 'inhale-mcp-abilities' ); ?></option>
+					</select>
+					<span><?php esc_html_e( 'per page', 'inhale-mcp-abilities' ); ?></span>
+				</label>
+			</div>
 		</div>
 		<?php
 	}

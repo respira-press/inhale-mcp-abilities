@@ -357,17 +357,87 @@
 	flex-wrap: wrap;
 }
 .inhale-wrap .tablenav.bottom { margin: 0; }
-.inhale-wrap .bulkactions {
+
+.inhale-wrap .inhale-quickactions {
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	position: relative;
 }
-.inhale-wrap .bulkactions select {
+
+.inhale-wrap .tablenav-pages {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	color: var(--fg-muted);
+	font-size: 13px;
+}
+.inhale-wrap .tablenav-pages .displaying-num {
+	font-size: 12.5px;
+	color: var(--fg-muted);
+}
+.inhale-wrap .tablenav-pages .inhale-visible-count {
+	font-family: var(--rp-font-mono);
+	font-weight: 500;
+	color: var(--fg);
+}
+.inhale-wrap .pagination-links {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+.inhale-wrap .pagination-links .button {
+	min-width: 30px;
+	height: 30px;
+	padding: 0 6px;
+	font-size: 14px;
+	line-height: 1;
+}
+.inhale-wrap .pagination-links .button:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+.inhale-wrap .pagination-links .paging-input {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0 4px;
+	font-size: 13px;
+	color: var(--fg-muted);
+}
+.inhale-wrap .pagination-links .current-page {
+	width: 44px;
+	height: 30px;
+	padding: 0 6px;
+	font-family: var(--rp-font-mono);
+	font-size: 13px;
+	text-align: center;
+	background: var(--bg-input);
+	color: var(--fg);
+	border: 1px solid var(--border);
+	border-radius: 3px;
+}
+.inhale-wrap .pagination-links .current-page:focus {
+	border-color: var(--accent);
+	outline: 0;
+	box-shadow: 0 0 0 2px var(--focus-ring);
+}
+.inhale-wrap .pagination-links .total-pages {
+	font-family: var(--rp-font-mono);
+	color: var(--fg);
+}
+.inhale-wrap .inhale-perpage {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+	color: var(--fg-muted);
+}
+.inhale-wrap .inhale-perpage select {
 	height: 30px;
 	padding: 0 24px 0 8px;
 	font-family: var(--rp-font-body);
-	font-size: 14px;
+	font-size: 13px;
 	background: var(--bg-input);
 	color: var(--fg);
 	border: 1px solid var(--border);
@@ -380,17 +450,16 @@
 	background-size: 4px 4px, 4px 4px;
 	background-repeat: no-repeat;
 }
-.inhale-wrap .bulkactions select:focus {
+.inhale-wrap .inhale-perpage select:focus {
 	border-color: var(--accent);
 	outline: 0;
 	box-shadow: 0 0 0 2px var(--focus-ring);
 }
-.inhale-wrap .pagination { font-size: 13px; color: var(--fg-muted); }
-.inhale-wrap .pagination .displaying-num {
-	font-family: var(--rp-font-mono);
-	font-size: 12px;
-	color: var(--fg-muted);
-}
+
+/* Pagination hides rows outside the current page. Coexists with the
+ * filter's .is-hidden by being applied independently; either matching
+ * hides the row. */
+.inhale-wrap .wp-list-table tbody tr.inhale-pg-hidden { display: none; }
 
 /* Buttons (scoped, lest we override wp-admin's defaults elsewhere) */
 .inhale-wrap .button {
@@ -825,11 +894,41 @@
 	gap: 16px;
 	margin: 16px 0 0;
 }
-.inhale-wrap .save-row .summary { font-size: 13px; color: var(--fg-muted); }
+.inhale-wrap .save-row .summary {
+	font-size: 13px;
+	color: var(--fg-muted);
+	display: inline-flex;
+	align-items: center;
+	gap: 14px;
+	flex-wrap: wrap;
+}
 .inhale-wrap .save-row .summary strong {
 	font-family: var(--rp-font-mono);
 	font-weight: 500;
 	color: var(--fg);
+}
+.inhale-wrap .inhale-dirty-indicator {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-family: var(--rp-font-mono);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--warn-fg);
+	padding: 2px 8px;
+	background: var(--warn-bg);
+	border: 1px solid var(--warn-border);
+	border-radius: 999px;
+}
+.inhale-wrap .inhale-dirty-indicator[hidden] { display: none; }
+.inhale-wrap .inhale-dirty-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--warn-fg);
+	flex-shrink: 0;
 }
 
 .inhale-wrap .divider {
