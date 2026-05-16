@@ -1,0 +1,232 @@
+# Translation template for Inhale: MCP Abilities.
+# Copyright (C) 2026 Respira
+# This file is distributed under the GPL-2.0-or-later license.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Inhale: MCP Abilities 0.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/respira-press/inhale-mcp-abilities/issues\n"
+"POT-Creation-Date: 2026-05-16 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
+"X-Domain: inhale-mcp-abilities\n"
+
+msgid "Inhale MCP Abilities"
+msgstr ""
+
+msgid "Inhale: MCP Abilities"
+msgstr ""
+
+msgid "Decide which registered abilities are visible to the default MCP server."
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Documentation"
+msgstr ""
+
+msgid "Toggle light or dark mode for the Inhale plugin"
+msgstr ""
+
+msgid "Toggle dark mode"
+msgstr ""
+
+msgid "Filter abilities"
+msgstr ""
+
+msgid "All"
+msgstr ""
+
+msgid "Inhaled"
+msgstr ""
+
+msgid "Read-only"
+msgstr ""
+
+msgid "Destructive"
+msgstr ""
+
+msgid "Unannotated"
+msgstr ""
+
+msgid "Reset filters"
+msgstr ""
+
+msgid "Search abilities, sources, and descriptions"
+msgstr ""
+
+msgid "Search abilities"
+msgstr ""
+
+msgid "Select bulk action"
+msgstr ""
+
+msgid "Bulk actions"
+msgstr ""
+
+msgid "Inhale selected"
+msgstr ""
+
+msgid "Exhale selected"
+msgstr ""
+
+msgid "Apply"
+msgstr ""
+
+#. translators: %d: total count of registered abilities.
+msgid "of %d items"
+msgstr ""
+
+msgid "Select all abilities"
+msgstr ""
+
+msgid "Ability"
+msgstr ""
+
+msgid "Source"
+msgstr ""
+
+msgid "Filter by source plugin"
+msgstr ""
+
+msgid "Filter by source"
+msgstr ""
+
+msgid "Filter abilities by source plugin"
+msgstr ""
+
+msgid "No sources to filter"
+msgstr ""
+
+msgid "Clear"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Annotations"
+msgstr ""
+
+msgid "No abilities are currently registered on this site. Activate the WordPress MCP Adapter and any plugins that register abilities to see them here."
+msgstr ""
+
+msgid "abilities currently inhaled"
+msgstr ""
+
+msgid "Save changes"
+msgstr ""
+
+msgid "Connection"
+msgstr ""
+
+msgid "Your default MCP server endpoint:"
+msgstr ""
+
+msgid "Copy endpoint"
+msgstr ""
+
+msgid "Copy"
+msgstr ""
+
+msgid "Connect with WP-CLI (STDIO)"
+msgstr ""
+
+#. translators: %s: the filename claude_desktop_config.json wrapped in <code> tags.
+msgid "Paste this into your Claude Desktop config (%s):"
+msgstr ""
+
+msgid "Connect with HTTP transport"
+msgstr ""
+
+msgid "Go to <em>Users → Profile → Application Passwords</em>."
+msgstr ""
+
+#. translators: %s: the application password name `mcp-client` wrapped in <code> tags.
+msgid "Create a new application password named %s."
+msgstr ""
+
+msgid "Copy the generated token (24 characters, four groups of six)."
+msgstr ""
+
+msgid "Add the configuration below to your MCP client."
+msgstr ""
+
+msgid "About Inhale"
+msgstr ""
+
+msgid "Inhale is a settings-only utility. It does not run MCP servers, transports, or authentication. Those are handled by the official WordPress MCP Adapter, which Inhale extends."
+msgstr ""
+
+msgid "Every ability you inhale still runs its own permission checks before execution. Inhale controls visibility, not authorization."
+msgstr ""
+
+msgid "Model Context Protocol (MCP) is an open specification originally developed by Anthropic. Inhale is a third-party plugin and is not affiliated with, endorsed by, or sponsored by Anthropic. Respira is an independent company."
+msgstr ""
+
+#. translators: 1: link to Respira for WordPress, 2: link to respira.press.
+msgid "Inhale is built by Respira. Respira ships AI infrastructure for WordPress, including %1$s, the safety layer for AI-driven edits across 12 page builders. Learn more at %2$s."
+msgstr ""
+
+msgid "no annotations"
+msgstr ""
+
+msgid "destructive"
+msgstr ""
+
+#. translators: %s: ability name.
+msgid "Managed by mcp-adapter, cannot toggle: %s"
+msgstr ""
+
+#. translators: %s: ability name.
+msgid "Inhaled: %s"
+msgstr ""
+
+#. translators: %s: ability name.
+msgid "Inhale %s"
+msgstr ""
+
+msgid "Triggers a single browser confirmation on check."
+msgstr ""
+
+msgid "(managed by mcp-adapter)"
+msgstr ""
+
+msgid "Managed"
+msgstr ""
+
+msgid "Not inhaled"
+msgstr ""
+
+msgid "List of ability names exposed to the default MCP server."
+msgstr ""
+
+msgid "You do not have permission to access this page."
+msgstr ""
+
+msgid "Unknown source"
+msgstr ""
+
+msgid "WordPress core"
+msgstr ""
+
+msgid "MCP Adapter (managed)"
+msgstr ""
+
+msgid "Respira for WordPress"
+msgstr ""
+
+msgid "AI Engine"
+msgstr ""
+
+msgid "WPForms"
+msgstr ""
+
+msgid "Yoast SEO"
+msgstr ""
