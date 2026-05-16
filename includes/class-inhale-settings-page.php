@@ -342,13 +342,14 @@ class Inhale_Settings_Page {
 	 */
 	private function namespace_label_map() {
 		$map = array(
-			'core'        => __( 'WordPress core', 'inhale-mcp-abilities' ),
-			'wp'          => __( 'WordPress core', 'inhale-mcp-abilities' ),
-			'mcp-adapter' => __( 'MCP Adapter (managed)', 'inhale-mcp-abilities' ),
-			'respira'     => __( 'Respira for WordPress', 'inhale-mcp-abilities' ),
-			'ai-engine'   => __( 'AI Engine', 'inhale-mcp-abilities' ),
-			'wpforms'     => __( 'WPForms', 'inhale-mcp-abilities' ),
-			'yoast'       => __( 'Yoast SEO', 'inhale-mcp-abilities' ),
+			'core'                 => __( 'WordPress core', 'inhale-mcp-abilities' ),
+			'wp'                   => __( 'WordPress core', 'inhale-mcp-abilities' ),
+			'mcp-adapter'          => __( 'MCP Adapter (managed)', 'inhale-mcp-abilities' ),
+			'respira'              => __( 'Respira for WordPress', 'inhale-mcp-abilities' ),
+			'respira-woocommerce'  => __( 'Respira WooCommerce', 'inhale-mcp-abilities' ),
+			'ai-engine'            => __( 'AI Engine', 'inhale-mcp-abilities' ),
+			'wpforms'              => __( 'WPForms', 'inhale-mcp-abilities' ),
+			'yoast'                => __( 'Yoast SEO', 'inhale-mcp-abilities' ),
 		);
 
 		/**
@@ -953,6 +954,7 @@ class Inhale_Settings_Page {
 	private function get_source_admin_url( $source_label ) {
 		$known = array(
 			'Respira for WordPress' => admin_url( 'admin.php?page=respira' ),
+			'Respira WooCommerce'   => admin_url( 'admin.php?page=respira' ),
 			'MCP Adapter (managed)' => admin_url( 'options-general.php?page=mcp-adapter' ),
 			'AI Engine'             => admin_url( 'admin.php?page=meowapps-main-menu' ),
 			'WPForms'               => admin_url( 'admin.php?page=wpforms-overview' ),
