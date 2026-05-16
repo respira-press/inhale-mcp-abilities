@@ -66,7 +66,7 @@
 		var resetLink = document.getElementById('inhaleResetFilters');
 		var visibleCounts = document.querySelectorAll('.inhale-wrap .inhale-visible-count');
 		var selectAllBoxes = document.querySelectorAll('.inhale-wrap .inhale-select-all');
-		var summary = document.querySelector('.inhale-wrap .inhale-inhaled-count');
+		var summaries = document.querySelectorAll('.inhale-wrap .inhale-inhaled-count');
 		var form = document.getElementById('inhaleAbilitiesForm');
 
 		var state = {
@@ -202,12 +202,11 @@
 			var anyFilter = state.search || state.view !== 'all' || sourceCount > 0 || state.sort.col !== null;
 			if (resetLink) { resetLink.classList.toggle('show', !!anyFilter); }
 
-			if (summary) {
-				summary.textContent = String(dataRows.filter(function (tr) {
-					var m = meta.get(tr);
-					return m && !m.managed && m.input && m.input.checked;
-				}).length);
-			}
+			var inhaledNow = String(dataRows.filter(function (tr) {
+				var m = meta.get(tr);
+				return m && !m.managed && m.input && m.input.checked;
+			}).length);
+			summaries.forEach(function (el) { el.textContent = inhaledNow; });
 		}
 
 		function resetAll() {
@@ -294,10 +293,10 @@
 		}
 		if (resetLink) { resetLink.addEventListener('click', resetAll); }
 
-		// On checkbox change: do NOT update the status pill (which always
-		// reflects the saved state). Instead, mark the row as pending so
-		// the user sees a clear divergence between "what I chose" and
-		// "what's been saved". Destructive confirm still fires here.
+		// On checkbox change: Status pill, counts and filters all reflect
+		// the staged state (one consistent model). The only signal that
+		// something hasn't persisted is the amber row edge + the
+		// "Unsaved changes" indicator next to Save.
 		dataRows.forEach(function (tr) {
 			var m = meta.get(tr);
 			if (!m || m.managed || !m.input) { return; }
@@ -305,6 +304,14 @@
 				if (m.input.checked && m.annot.indexOf('destructive') !== -1) {
 					var ok = window.confirm('This ability can modify content on your site. Inhale it?');
 					if (!ok) { m.input.checked = false; }
+				}
+				var statusCell = tr.querySelector('.col-status');
+				if (statusCell) {
+					if (m.input.checked) {
+						statusCell.innerHTML = '<span class="status-pill inhaled">Inhaled</span>';
+					} else {
+						statusCell.innerHTML = '<span class="status-empty" aria-label="Not inhaled">—</span>';
+					}
 				}
 				updateRowPending(tr);
 				apply();
@@ -315,10 +322,8 @@
 			var m = meta.get(tr);
 			if (!m || !m.input) { return; }
 			var saved = tr.getAttribute('data-saved') === 'true';
-			var pending = !!m.input.checked;
-			tr.classList.toggle('inhale-pending', saved !== pending);
-			tr.classList.toggle('inhale-pending-inhale', !saved && pending);
-			tr.classList.toggle('inhale-pending-exhale', saved && !pending);
+			var staged = !!m.input.checked;
+			tr.classList.toggle('inhale-pending', saved !== staged);
 		}
 
 		selectAllBoxes.forEach(function (box) {
@@ -376,6 +381,14 @@
 					var m = meta.get(tr);
 					if (!m || !m.input) { return; }
 					m.input.checked = targetChecked;
+					var statusCell = tr.querySelector('.col-status');
+					if (statusCell) {
+						if (targetChecked) {
+							statusCell.innerHTML = '<span class="status-pill inhaled">Inhaled</span>';
+						} else {
+							statusCell.innerHTML = '<span class="status-empty" aria-label="Not inhaled">—</span>';
+						}
+					}
 					updateRowPending(tr);
 				});
 				apply();
@@ -475,7 +488,7 @@
 		/* ─── Unsaved-changes indicator ───────────────────────────
 		 * Snapshot the saved state on first paint; flag dirty whenever
 		 * the current set of checked values diverges. */
-		var dirtyIndicator = document.getElementById('inhaleDirtyIndicator');
+		var dirtyIndicators = document.querySelectorAll('.inhale-wrap .inhale-dirty-indicator');
 		var savedSnapshot = (function () {
 			var s = {};
 			dataRows.forEach(function (tr) {
@@ -486,7 +499,7 @@
 		})();
 
 		function updateDirty() {
-			if (!dirtyIndicator) { return; }
+			if (!dirtyIndicators.length) { return; }
 			var current = {};
 			dataRows.forEach(function (tr) {
 				var m = meta.get(tr);
@@ -502,7 +515,7 @@
 					if (!current[keysA[i]]) { dirty = true; break; }
 				}
 			}
-			dirtyIndicator.hidden = !dirty;
+			dirtyIndicators.forEach(function (el) { el.hidden = !dirty; });
 		}
 
 		if (form) {

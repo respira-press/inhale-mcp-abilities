@@ -498,6 +498,7 @@ class Inhale_Settings_Page {
 
 			<form method="post" action="options.php" id="inhaleAbilitiesForm">
 				<?php settings_fields( self::OPTION_GROUP ); ?>
+				<?php $this->render_save_row( 'top', $counts ); ?>
 
 				<div class="filters-row">
 					<div class="filters-row-left">
@@ -600,17 +601,7 @@ class Inhale_Settings_Page {
 
 				<?php $this->render_tablenav( 'bottom', $counts ); ?>
 
-				<div class="save-row">
-					<div class="summary">
-						<strong class="inhale-inhaled-count"><?php echo (int) $counts['inhaled']; ?></strong>
-						<?php esc_html_e( 'abilities currently inhaled', 'inhale-mcp-abilities' ); ?>
-						<span class="inhale-dirty-indicator" id="inhaleDirtyIndicator" hidden>
-							<span class="inhale-dirty-dot" aria-hidden="true"></span>
-							<?php esc_html_e( 'Unsaved changes', 'inhale-mcp-abilities' ); ?>
-						</span>
-					</div>
-					<?php submit_button( __( 'Save changes', 'inhale-mcp-abilities' ), 'primary large', 'submit', false ); ?>
-				</div>
+				<?php $this->render_save_row( 'bottom', $counts ); ?>
 			</form>
 
 			<hr class="divider"/>
@@ -722,6 +713,33 @@ class Inhale_Settings_Page {
 	}
 
 	/**
+	 * Render the save row (inhaled count + dirty indicator + submit
+	 * button). Rendered both above and below the table so the action is
+	 * reachable from either end without scrolling. The dirty indicator
+	 * and inhaled count in both rows are kept in sync by the JS layer.
+	 *
+	 * @param string             $position 'top' or 'bottom'.
+	 * @param array<string, int> $counts   Counts array including 'inhaled'.
+	 */
+	private function render_save_row( $position, $counts ) {
+		$position = ( 'top' === $position ) ? 'top' : 'bottom';
+		$btn_name = 'top' === $position ? 'submit-top' : 'submit';
+		?>
+		<div class="save-row save-row--<?php echo esc_attr( $position ); ?>">
+			<div class="summary">
+				<strong class="inhale-inhaled-count"><?php echo (int) $counts['inhaled']; ?></strong>
+				<?php esc_html_e( 'abilities currently inhaled', 'inhale-mcp-abilities' ); ?>
+				<span class="inhale-dirty-indicator" hidden>
+					<span class="inhale-dirty-dot" aria-hidden="true"></span>
+					<?php esc_html_e( 'Unsaved changes', 'inhale-mcp-abilities' ); ?>
+				</span>
+			</div>
+			<?php submit_button( __( 'Save changes', 'inhale-mcp-abilities' ), 'primary large', $btn_name, false ); ?>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Render the tablenav row (quick actions on the left, pagination on the
 	 * right). Used both above and below the abilities table.
 	 *
@@ -739,14 +757,14 @@ class Inhale_Settings_Page {
 					type="button"
 					class="button inhale-quickaction"
 					data-action="inhale"
-					title="<?php esc_attr_e( 'Inhale every ability matching the current filter. You will still need to click Save changes to persist.', 'inhale-mcp-abilities' ); ?>">
+					title="<?php esc_attr_e( 'Inhale every ability matching the current filter. Changes apply when you click Save changes.', 'inhale-mcp-abilities' ); ?>">
 					<?php esc_html_e( 'Inhale all filtered', 'inhale-mcp-abilities' ); ?>
 				</button>
 				<button
 					type="button"
 					class="button inhale-quickaction"
 					data-action="exhale"
-					title="<?php esc_attr_e( 'Exhale every ability matching the current filter. You will still need to click Save changes to persist.', 'inhale-mcp-abilities' ); ?>">
+					title="<?php esc_attr_e( 'Exhale every ability matching the current filter. Changes apply when you click Save changes.', 'inhale-mcp-abilities' ); ?>">
 					<?php esc_html_e( 'Exhale all filtered', 'inhale-mcp-abilities' ); ?>
 				</button>
 			</div>
