@@ -405,11 +405,12 @@ class Inhale_Settings_Page {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'inhale-mcp-abilities' ) );
 		}
 
-		$abilities = $this->discover_abilities();
-		$exposed   = $this->get_exposed();
-		$counts    = $this->build_counts( $abilities, $exposed );
-		$sources   = $this->build_source_list( $abilities );
-		$endpoint  = esc_url( home_url( self::DEFAULT_SERVER_ROUTE ) );
+		$abilities       = $this->discover_abilities();
+		$exposed         = $this->get_exposed();
+		$counts          = $this->build_counts( $abilities, $exposed );
+		$sources         = $this->build_source_list( $abilities );
+		$source_summary  = $this->build_source_summary( $abilities );
+		$endpoint        = esc_url( home_url( self::DEFAULT_SERVER_ROUTE ) );
 
 		?>
 		<div class="wrap inhale-wrap" data-theme="light">
@@ -466,6 +467,34 @@ class Inhale_Settings_Page {
 				</div>
 			</div>
 
+			<?php if ( ! empty( $source_summary ) ) : ?>
+				<aside class="inhale-sources-card" aria-labelledby="inhale-sources-h">
+					<h2 id="inhale-sources-h" class="inhale-sources-card__title">
+						<?php
+						/* translators: %d: total number of source plugins/themes registering abilities. */
+						echo esc_html( sprintf( _n( '%d source', '%d sources', count( $source_summary ), 'inhale-mcp-abilities' ), count( $source_summary ) ) );
+						?>
+					</h2>
+					<ul class="inhale-sources-card__list">
+						<?php foreach ( $source_summary as $row ) : ?>
+							<li class="inhale-sources-card__row">
+								<?php if ( '' !== $row['url'] ) : ?>
+									<a class="inhale-sources-card__link" href="<?php echo esc_url( $row['url'] ); ?>">
+										<span class="inhale-sources-card__label"><?php echo esc_html( $row['label'] ); ?></span>
+										<span class="inhale-sources-card__count"><?php echo (int) $row['count']; ?></span>
+									</a>
+								<?php else : ?>
+									<span class="inhale-sources-card__link inhale-sources-card__link--static">
+										<span class="inhale-sources-card__label"><?php echo esc_html( $row['label'] ); ?></span>
+										<span class="inhale-sources-card__count"><?php echo (int) $row['count']; ?></span>
+									</span>
+								<?php endif; ?>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				</aside>
+			<?php endif; ?>
+
 			<form method="post" action="options.php" id="inhaleAbilitiesForm">
 				<?php settings_fields( self::OPTION_GROUP ); ?>
 
@@ -493,8 +522,8 @@ class Inhale_Settings_Page {
 						<label for="inhale-bulk-action-top" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'inhale-mcp-abilities' ); ?></label>
 						<select id="inhale-bulk-action-top" class="inhale-bulk-action">
 							<option value="-1"><?php esc_html_e( 'Bulk actions', 'inhale-mcp-abilities' ); ?></option>
-							<option value="inhale"><?php esc_html_e( 'Inhale selected', 'inhale-mcp-abilities' ); ?></option>
-							<option value="exhale"><?php esc_html_e( 'Exhale selected', 'inhale-mcp-abilities' ); ?></option>
+							<option value="inhale"><?php esc_html_e( 'Inhale all visible', 'inhale-mcp-abilities' ); ?></option>
+							<option value="exhale"><?php esc_html_e( 'Exhale all visible', 'inhale-mcp-abilities' ); ?></option>
 						</select>
 						<button type="button" class="button inhale-bulk-apply"><?php esc_html_e( 'Apply', 'inhale-mcp-abilities' ); ?></button>
 					</div>
@@ -505,7 +534,7 @@ class Inhale_Settings_Page {
 					</div>
 				</div>
 
-				<table class="wp-list-table widefat fixed striped" role="grid" id="inhaleAbilitiesTable">
+				<table class="wp-list-table widefat fixed inhale-table" role="grid" id="inhaleAbilitiesTable">
 					<thead>
 						<tr>
 							<th scope="col" class="manage-column column-cb col-check">
@@ -588,8 +617,8 @@ class Inhale_Settings_Page {
 						<label for="inhale-bulk-action-bottom" class="screen-reader-text"><?php esc_html_e( 'Select bulk action', 'inhale-mcp-abilities' ); ?></label>
 						<select id="inhale-bulk-action-bottom" class="inhale-bulk-action">
 							<option value="-1"><?php esc_html_e( 'Bulk actions', 'inhale-mcp-abilities' ); ?></option>
-							<option value="inhale"><?php esc_html_e( 'Inhale selected', 'inhale-mcp-abilities' ); ?></option>
-							<option value="exhale"><?php esc_html_e( 'Exhale selected', 'inhale-mcp-abilities' ); ?></option>
+							<option value="inhale"><?php esc_html_e( 'Inhale all visible', 'inhale-mcp-abilities' ); ?></option>
+							<option value="exhale"><?php esc_html_e( 'Exhale all visible', 'inhale-mcp-abilities' ); ?></option>
 						</select>
 						<button type="button" class="button inhale-bulk-apply"><?php esc_html_e( 'Apply', 'inhale-mcp-abilities' ); ?></button>
 					</div>
@@ -818,6 +847,88 @@ class Inhale_Settings_Page {
 		$list = array_keys( $seen );
 		sort( $list );
 		return $list;
+	}
+
+	/**
+	 * Build a summary list of sources with their ability counts. Used in the
+	 * card above the abilities table.
+	 *
+	 * @param array<int, array<string, mixed>> $abilities Normalized rows.
+	 * @return array<int, array{label: string, count: int, url: string}>
+	 */
+	private function build_source_summary( $abilities ) {
+		$counts = array();
+		foreach ( $abilities as $a ) {
+			$source = isset( $a['source'] ) ? (string) $a['source'] : '';
+			if ( '' === $source ) {
+				continue;
+			}
+			if ( ! isset( $counts[ $source ] ) ) {
+				$counts[ $source ] = 0;
+			}
+			++$counts[ $source ];
+		}
+
+		$rows = array();
+		foreach ( $counts as $label => $count ) {
+			$rows[] = array(
+				'label' => $label,
+				'count' => $count,
+				'url'   => $this->get_source_admin_url( $label ),
+			);
+		}
+
+		usort(
+			$rows,
+			static function ( $a, $b ) {
+				if ( $a['count'] === $b['count'] ) {
+					return strnatcasecmp( $a['label'], $b['label'] );
+				}
+				return $b['count'] - $a['count'];
+			}
+		);
+
+		return $rows;
+	}
+
+	/**
+	 * Best-effort resolution of a source label to its wp-admin destination.
+	 *
+	 * Returns an admin URL for known plugins, or the Plugins listing
+	 * (filtered by plugin name) as a generic fallback. Returns an empty
+	 * string for sources that don't have an admin home (e.g. core).
+	 *
+	 * @param string $source_label The human-readable source name.
+	 * @return string
+	 */
+	private function get_source_admin_url( $source_label ) {
+		$known = array(
+			'Respira for WordPress' => admin_url( 'admin.php?page=respira' ),
+			'MCP Adapter (managed)' => admin_url( 'options-general.php?page=mcp-adapter' ),
+			'AI Engine'             => admin_url( 'admin.php?page=meowapps-main-menu' ),
+			'WPForms'               => admin_url( 'admin.php?page=wpforms-overview' ),
+			'Yoast SEO'             => admin_url( 'admin.php?page=wpseo_dashboard' ),
+		);
+
+		if ( isset( $known[ $source_label ] ) ) {
+			return $known[ $source_label ];
+		}
+
+		if ( __( 'WordPress core', 'inhale-mcp-abilities' ) === $source_label ) {
+			return '';
+		}
+
+		/**
+		 * Filter the admin URL for a source plugin label.
+		 *
+		 * @param string $url    Default URL (Plugins listing filtered by label).
+		 * @param string $source Source label.
+		 */
+		return apply_filters(
+			'inhale_mcp_abilities_source_admin_url',
+			admin_url( 'plugins.php?plugin_status=active&s=' . rawurlencode( $source_label ) ),
+			$source_label
+		);
 	}
 
 	/**

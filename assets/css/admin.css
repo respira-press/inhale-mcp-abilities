@@ -118,7 +118,7 @@
 .inhale-wrap h1.inhale-h1 {
 	display: inline-flex;
 	align-items: center;
-	gap: 12px;
+	gap: 16px;
 	font-family: var(--rp-font-body);
 	font-size: 23px;
 	font-weight: 400;
@@ -132,11 +132,11 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 28px;
-	height: 28px;
+	width: 56px;
+	height: 56px;
 	flex-shrink: 0;
 }
-.inhale-wrap .inhale-mark svg { width: 28px; height: 28px; display: block; }
+.inhale-wrap .inhale-mark svg { width: 56px; height: 56px; display: block; }
 .inhale-wrap .inhale-mark .inhale-mark-grid circle { fill: var(--fg-dim); }
 .inhale-wrap .inhale-mark .inhale-mark-accent circle { fill: var(--accent); }
 .inhale-wrap .page-desc {
@@ -211,6 +211,83 @@
 	font-family: var(--rp-font-body);
 }
 .inhale-wrap .theme-toggle:hover::after { opacity: 1; }
+
+/* Sources summary card. Sits above the filter row and surfaces every
+   plugin/theme registering abilities, with deep-links to their wp-admin
+   pages. Styled to match the rest of the page (same surfaces + tokens). */
+.inhale-wrap .inhale-sources-card {
+	margin: 24px 0 0;
+	padding: 16px 18px 14px;
+	background: var(--bg-card);
+	border: 1px solid var(--border-soft);
+	border-radius: 4px;
+}
+.inhale-wrap .inhale-sources-card__title {
+	font-family: var(--rp-font-mono);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--fg-muted);
+	margin: 0 0 10px;
+	padding: 0;
+	border: 0;
+}
+.inhale-wrap .inhale-sources-card__list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.inhale-wrap .inhale-sources-card__row { margin: 0; padding: 0; }
+.inhale-wrap .inhale-sources-card__link {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 10px 6px 12px;
+	background: var(--bg-card-alt);
+	border: 1px solid var(--border-soft);
+	border-radius: 999px;
+	font-size: 12.5px;
+	font-weight: 500;
+	color: var(--fg);
+	text-decoration: none;
+	transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
+}
+.inhale-wrap .inhale-sources-card__link:hover {
+	color: var(--fg);
+	border-color: var(--accent);
+	background: var(--accent-soft);
+	text-decoration: none;
+}
+.inhale-wrap .inhale-sources-card__link--static {
+	cursor: default;
+}
+.inhale-wrap .inhale-sources-card__link--static:hover {
+	border-color: var(--border-soft);
+	background: var(--bg-card-alt);
+}
+.inhale-wrap .inhale-sources-card__label {
+	font-family: var(--rp-font-body);
+}
+.inhale-wrap .inhale-sources-card__count {
+	font-family: var(--rp-font-mono);
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--fg-muted);
+	background: var(--bg-card);
+	border: 1px solid var(--border-soft);
+	border-radius: 999px;
+	padding: 1px 7px;
+	min-width: 22px;
+	text-align: center;
+}
+.inhale-wrap .inhale-sources-card__link:hover .inhale-sources-card__count {
+	color: var(--accent);
+	border-color: var(--accent);
+}
 
 /* Filters row */
 .inhale-wrap .filters-row {
@@ -367,7 +444,12 @@
 .inhale-wrap .button-large { height: 36px; padding: 0 16px; font-size: 14px; }
 .inhale-wrap .button-small { height: 26px; padding: 0 8px; font-size: 12px; }
 
-/* List table */
+/* List table.
+ *
+ * We deliberately omit wp-admin's `.striped` class on the table element so
+ * its `wp-list-table.striped > tbody > :nth-child(odd)` rule (which sets a
+ * white background on the <tr>) doesn't bleed through in dark mode. Our
+ * `.inhale-table` class carries the striping ourselves. */
 .inhale-wrap .wp-list-table {
 	width: 100%;
 	border-collapse: collapse;
@@ -385,31 +467,35 @@
 	border-bottom: 1px solid var(--border);
 	font-size: 13px;
 	font-weight: 600;
-	padding: 10px 12px;
+	padding: 10px 14px;
 	text-align: left;
 	vertical-align: middle;
 }
 .inhale-wrap .wp-list-table tfoot th { border-bottom: 0; border-top: 1px solid var(--border); }
 .inhale-wrap .wp-list-table tbody td {
-	padding: 12px 12px;
+	padding: 12px 14px;
 	border-top: 1px solid var(--border-soft);
 	font-size: 13px;
 	color: var(--fg);
-	vertical-align: middle;
+	vertical-align: top;
 	word-wrap: break-word;
 }
 .inhale-wrap .wp-list-table tbody tr:first-child td { border-top: 0; }
-.inhale-wrap .wp-list-table.striped tbody tr:nth-child(2n) td { background: var(--bg-card-alt); }
-.inhale-wrap .wp-list-table tbody tr:hover td { background: var(--bg-hover); }
-.inhale-wrap .wp-list-table tbody tr.disabled td { color: var(--disabled-fg); background: var(--disabled-bg); }
-.inhale-wrap .wp-list-table tbody tr.disabled:hover td { background: var(--disabled-bg); }
+.inhale-wrap .wp-list-table.inhale-table > tbody > tr > td { background: var(--bg-card); }
+.inhale-wrap .wp-list-table.inhale-table > tbody > tr:nth-child(2n) > td { background: var(--bg-card-alt); }
+.inhale-wrap .wp-list-table tbody tr:hover td,
+.inhale-wrap .wp-list-table.inhale-table > tbody > tr:hover > td { background: var(--bg-hover); }
+.inhale-wrap .wp-list-table tbody tr.disabled td,
+.inhale-wrap .wp-list-table.inhale-table > tbody > tr.disabled > td { color: var(--disabled-fg); background: var(--disabled-bg); }
+.inhale-wrap .wp-list-table tbody tr.disabled:hover td,
+.inhale-wrap .wp-list-table.inhale-table > tbody > tr.disabled:hover > td { background: var(--disabled-bg); }
 
-.inhale-wrap .col-check  { width: 2.4em; padding-left: 12px !important; padding-right: 0 !important; text-align: center; }
-.inhale-wrap .col-ability { width: 280px; }
-.inhale-wrap .col-source  { width: 180px; }
+.inhale-wrap .col-check  { width: 2.4em; padding-left: 14px !important; padding-right: 0 !important; text-align: center; }
+.inhale-wrap .col-ability { width: 340px; }
+.inhale-wrap .col-source  { width: 170px; }
 .inhale-wrap .col-desc    { width: auto; }
-.inhale-wrap .col-status  { width: 110px; }
-.inhale-wrap .col-annot   { width: 200px; }
+.inhale-wrap .col-status  { width: 100px; }
+.inhale-wrap .col-annot   { width: 160px; }
 
 .inhale-wrap .source-name {
 	font-family: var(--rp-font-body);
@@ -622,16 +708,22 @@
 	font-weight: 500;
 	color: var(--fg);
 	letter-spacing: 0;
-	white-space: nowrap;
+	word-break: break-all;
+	overflow-wrap: anywhere;
+	line-height: 1.4;
+	display: block;
 }
 .inhale-wrap .wp-list-table tr.disabled .ability-name { color: var(--disabled-fg); }
 .inhale-wrap .wp-list-table .ability-desc {
 	font-size: 13px;
 	color: var(--fg);
 	line-height: 1.5;
-	white-space: nowrap;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
 	overflow: hidden;
-	text-overflow: ellipsis;
+	overflow-wrap: anywhere;
+	word-break: break-word;
 }
 .inhale-wrap .wp-list-table tr.disabled .ability-desc {
 	color: var(--disabled-fg);

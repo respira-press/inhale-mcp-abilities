@@ -335,29 +335,46 @@
 				var action = select.value;
 				if (action !== 'inhale' && action !== 'exhale') { return; }
 
-				var anyDestructive = false;
+				var targetChecked = (action === 'inhale');
+
+				// Operate on every visible, non-managed row whose state needs
+				// to flip. Row's current state is the canonical inhale state;
+				// the bulk action moves all visible rows to the chosen state.
+				var toFlip = [];
 				dataRows.forEach(function (tr) {
 					var m = meta.get(tr);
 					if (!m || m.managed || tr.classList.contains('is-hidden')) { return; }
-					if (!m.input.checked) { return; }
-					if (action === 'inhale' && m.annot.indexOf('destructive') !== -1) {
-						anyDestructive = true;
-					}
+					if (m.input.checked === targetChecked) { return; }
+					toFlip.push(tr);
 				});
 
-				if (action === 'inhale' && anyDestructive) {
-					var ok = window.confirm('Some of the selected abilities can modify content on your site. Inhale them all?');
-					if (!ok) { return; }
+				if (toFlip.length === 0) { select.value = '-1'; return; }
+
+				// Single destructive confirmation if any newly-inhaled ability
+				// is destructive.
+				if (targetChecked) {
+					var destructiveCount = 0;
+					toFlip.forEach(function (tr) {
+						var m = meta.get(tr);
+						if (m && m.annot.indexOf('destructive') !== -1) {
+							destructiveCount++;
+						}
+					});
+					if (destructiveCount > 0) {
+						var msg = destructiveCount === 1
+							? 'One of the visible abilities can modify content on your site. Inhale it?'
+							: (destructiveCount + ' of the visible abilities can modify content on your site. Inhale them?');
+						if (!window.confirm(msg)) {
+							select.value = '-1';
+							return;
+						}
+					}
 				}
 
-				dataRows.forEach(function (tr) {
+				toFlip.forEach(function (tr) {
 					var m = meta.get(tr);
-					if (!m || m.managed || tr.classList.contains('is-hidden')) { return; }
-					if (!m.input.checked) { return; }
-					var targetChecked = (action === 'inhale');
-					var anyOneChecked = tr.querySelector('input[type="checkbox"].inhale-ability-checkbox');
-					if (!anyOneChecked) { return; }
-					anyOneChecked.checked = targetChecked;
+					if (!m || !m.input) { return; }
+					m.input.checked = targetChecked;
 					var statusCell = tr.querySelector('.col-status');
 					if (statusCell) {
 						if (targetChecked) {
