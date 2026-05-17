@@ -510,7 +510,14 @@ class Inhale_Settings_Page {
 	 */
 	public function render_page() {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to access this page.', 'inhale-mcp-abilities' ) );
+			wp_die(
+				esc_html__( 'You do not have permission to access this page.', 'inhale-mcp-abilities' ),
+				esc_html__( 'Permission denied', 'inhale-mcp-abilities' ),
+				array(
+					'response'  => 403,
+					'back_link' => true,
+				)
+			);
 		}
 
 		$this->maybe_process_bulk_action();
@@ -949,8 +956,9 @@ class Inhale_Settings_Page {
 		$single_label = $checked
 			? /* translators: %s: ability name. */ __( 'Select %s for bulk action (currently inhaled)', 'inhale-mcp-abilities' )
 			: /* translators: %s: ability name. */ __( 'Select %s for bulk action (currently not inhaled)', 'inhale-mcp-abilities' );
+		$row_class    = implode( ' ', $row_classes );
 		?>
-		<tr<?php echo $row_classes ? ' class="' . esc_attr( implode( ' ', $row_classes ) ) . '"' : ''; ?> <?php echo implode( ' ', $row_attrs ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped above ?>>
+		<tr class="<?php echo esc_attr( $row_class ); ?>" <?php echo implode( ' ', $row_attrs ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each $row_attrs entry was built with esc_attr() above. ?>>
 			<td class="col-check check-column">
 				<?php if ( $managed ) : ?>
 					<input type="checkbox" disabled aria-label="<?php echo esc_attr( sprintf( /* translators: %s: ability name. */ __( 'Managed by mcp-adapter, cannot select: %s', 'inhale-mcp-abilities' ), $name ) ); ?>" />
