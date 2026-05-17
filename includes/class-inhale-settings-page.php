@@ -551,7 +551,7 @@ class Inhale_Settings_Page {
 				</div>
 				<div class="page-head-tools">
 					<a class="docs-link"
-						href="https://respira.press/docs/inhale-mcp-abilities/"
+						href="https://respira.press/inhale"
 						target="_blank"
 						rel="noopener noreferrer">
 						<?php esc_html_e( 'Documentation', 'inhale-mcp-abilities' ); ?>
@@ -831,7 +831,7 @@ class Inhale_Settings_Page {
 				echo wp_kses(
 					/* translators: 1: link to Respira for WordPress, 2: link to respira.press. */
 					sprintf(
-						__( 'The Inhale: MCP Abilities plugin is built by Respira, which ships AI infrastructure for WordPress. The main product is %1$s, a safety layer that registers 130+ abilities across 12 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 6 more) with snapshot-before-write protection, render validation and one-click rollback. Free add-ons extend Respira\'s coverage to WooCommerce, SEO and newsletters. Learn more at %2$s.', 'inhale-mcp-abilities' ),
+						__( 'The Inhale: MCP Abilities plugin is built by Respira, which ships AI infrastructure for WordPress. The main product is %1$s, a safety layer that registers 130+ abilities across 12 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 6 more) with snapshot-before-write protection, render validation and one-click rollback. Learn more at %2$s.', 'inhale-mcp-abilities' ),
 						'<a href="https://respira.press" target="_blank" rel="noopener noreferrer">Respira for WordPress</a>',
 						'<a href="https://respira.press" target="_blank" rel="noopener noreferrer">respira.press</a>'
 					),

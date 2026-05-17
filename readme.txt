@@ -45,7 +45,7 @@ Model Context Protocol (MCP) is an open specification originally developed by An
 
 = About Respira =
 
-The Inhale: MCP Abilities plugin is built and maintained by Respira, which ships AI infrastructure for WordPress. The main product is Respira for WordPress, a safety layer that registers 130+ abilities across 12 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 6 more) with snapshot-before-write protection, render validation and one-click rollback. Free add-ons extend Respira's coverage to WooCommerce, SEO and newsletters. Inhale: MCP Abilities is a free utility offered to the WordPress community. Learn more at https://respira.press.
+The Inhale: MCP Abilities plugin is built and maintained by Respira, which ships AI infrastructure for WordPress. The main product is Respira for WordPress, a safety layer that registers 130+ abilities across 12 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 6 more) with snapshot-before-write protection, render validation and one-click rollback. Inhale: MCP Abilities is a free utility offered to the WordPress community. Learn more at https://respira.press/inhale.
 
 == Installation ==
 
@@ -89,19 +89,25 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 == Changelog ==
 
 = 0.1.0 =
-* Initial release
-* Settings page at Settings &gt; Inhale: MCP Abilities
-* Per-ability checkboxes to control default MCP server visibility
-* Annotation badges (read-only, destructive, idempotent, unannotated) on each ability
-* Destructive ability confirmation flow
-* Filter views above the abilities table (All, Inhaled, Read-only, Destructive, Unannotated)
-* Bulk actions to inhale or exhale multiple abilities at once
-* Search input for filtering abilities
-* Pagination for sites with many registered abilities
-* Connection info showing the default MCP server endpoint with copy-to-clipboard
-* Expandable connection guides for WP-CLI STDIO transport and HTTP transport with application passwords
-* Light and dark mode support
-* Full keyboard accessibility and WCAG AA compliance
+* Initial release.
+* Settings page at Settings &gt; Inhale: MCP Abilities, registered with `manage_options` capability.
+* Discovers every ability registered via the WordPress Abilities API (`wp_get_abilities()`) and lists them in a wp-admin native list table.
+* Standard wp-admin selection + bulk-action UX: row checkboxes are selection, the Bulk Actions dropdown plus Apply commits Inhale or Exhale immediately.
+* Row-hover quick actions for single-ability inhale or exhale.
+* Annotation badges on each ability (read-only, destructive, idempotent) sourced from the ability's declared meta; falls back to heuristic inference from the ability name when the registering plugin didn't tag it, with a dashed border and asterisk to mark inferred annotations.
+* Filter views (All, Inhaled, Read-only, Destructive, Unannotated) and a search box that matches across name, source and description.
+* Multi-select source filter on the Source column to narrow by the registering plugin or theme.
+* Sortable columns (Ability, Source, Description, Status).
+* Client-side pagination: 20 / 50 / 100 / All items per page, with wp-admin-native page navigation chrome.
+* Sources summary card above the table listing every plugin or theme that registers abilities, with the count per source and a deep-link to that plugin's wp-admin home.
+* Destructive ability confirmation: one consolidated dialog when a bulk Inhale would expose destructive abilities; one dialog per single-row Inhale link.
+* Annotation legend section under the table explaining what each annotation means, including how inferred annotations differ from declared ones.
+* Connection section showing the default MCP server endpoint with copy-to-clipboard, and expandable connection guides for WP-CLI STDIO transport and HTTP transport with application passwords.
+* About section with the MCP / Anthropic trademark disclaimer (this plugin is third-party, not affiliated with Anthropic).
+* Light and dark mode support, persisted per browser in localStorage and respecting the wp-admin color scheme on first load.
+* WCAG AA contrast in both modes; full keyboard accessibility.
+* Filter (`wp_register_ability_args` at priority 10) is the only writer to ability meta; existing meta on opted-in abilities is preserved.
+* Adapter-managed abilities (`mcp-adapter/*` namespace) are surfaced as read-only "Managed" rows and skipped by the filter.
 
 == Upgrade Notice ==
 
