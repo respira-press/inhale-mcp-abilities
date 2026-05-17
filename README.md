@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="wp-org-assets/banner-1544x500.png" alt="Inhale: MCP Abilities" width="100%" />
+  <img src="wp-org-assets/banner-1544x500-dark.png" alt="Inhale: MCP Abilities" width="100%" />
 </p>
 
 # Inhale: MCP Abilities
