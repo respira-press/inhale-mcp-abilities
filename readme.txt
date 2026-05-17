@@ -4,7 +4,7 @@ Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,11 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 
 == Changelog ==
 
+= 0.1.1 =
+* Hardening pass: the permission-denied path in the settings page render now passes HTTP response code 403 and a back link to `wp_die()`, so access logs and automated clients see an authorization failure instead of a generic error.
+* Normalize row-class escaping in the abilities table: always render the `<tr>` class attribute through `esc_attr()` instead of conditionally injecting the attribute fragment. No behavioral change, conforms more strictly to the WordPress Plugin Check `WordPress.Security.EscapeOutput` rule.
+* Mirrors the equivalent review feedback addressed upstream on WordPress/mcp-adapter PR #184.
+
 = 0.1.0 =
 * Initial release.
 * Settings page at Settings &gt; Inhale: MCP Abilities, registered with `manage_options` capability.
@@ -110,6 +115,9 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 * Adapter-managed abilities (`mcp-adapter/*` namespace) are surfaced as read-only "Managed" rows and skipped by the filter.
 
 == Upgrade Notice ==
+
+= 0.1.1 =
+Security hardening pass on the settings page render path. No new features. Safe to upgrade.
 
 = 0.1.0 =
 Initial release.
