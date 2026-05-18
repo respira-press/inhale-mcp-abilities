@@ -4,7 +4,7 @@ Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.2.1
+Stable tag: 0.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -87,6 +87,11 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 4. Dark mode view of the settings page.
 
 == Changelog ==
+
+= 0.2.2 =
+* Suppress every admin notice queued by other plugins or the active theme on the Inhale settings page. Inhale's own notices (rendered inline via render_notice()) survive, every other one (license warnings, plugin-install nags, update banners, etc.) is dropped on this screen only. Implemented via `remove_all_actions( 'admin_notices' / 'all_admin_notices' / 'user_admin_notices' / 'network_admin_notices' )` on the `current_screen` hook, scoped to `settings_page_inhale-mcp-abilities`.
+* Add "by respira.press" attribution after the page title, rendered in Baskervville italic emerald (#86efac) per the canonical respira.press/brand spec, with system serif fallbacks so no external font fetch is required.
+* Add a small pill next to the attribution showing the current plugin version (`v0.2.2`). Pill uses the emerald accent palette and the mono font, sized 11px, focus-visible underline on the linked attribution.
 
 = 0.2.1 =
 * Replace the Status column text pill ("Inhaled" / em-dash) with an iOS-style toggle switch. Green when the ability is inhaled, off when not. Clicking the toggle commits the change immediately, same single-row flow as the existing row-hover quick action. Managed rows (mcp-adapter namespace) render a disabled toggle. Destructive abilities still trigger the confirmation dialog before flipping on.

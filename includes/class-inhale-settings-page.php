@@ -552,6 +552,11 @@ class Inhale_Settings_Page {
 							</svg>
 						</span>
 						<span class="inhale-h1-text"><?php esc_html_e( 'Inhale: MCP Abilities', 'inhale-mcp-abilities' ); ?></span>
+						<span class="inhale-h1-by">
+							<?php esc_html_e( 'by', 'inhale-mcp-abilities' ); ?>
+							<a href="https://respira.press" target="_blank" rel="noopener noreferrer">respira.press</a>
+						</span>
+						<span class="inhale-h1-version" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: plugin version. */ __( 'Plugin version %s', 'inhale-mcp-abilities' ), INHALE_VERSION ) ); ?>">v<?php echo esc_html( INHALE_VERSION ); ?></span>
 					</h1>
 					<p class="page-desc"><?php esc_html_e( 'Decide which registered abilities are visible to the default MCP server.', 'inhale-mcp-abilities' ); ?></p>
 					<span class="accent-line" aria-hidden="true"></span>

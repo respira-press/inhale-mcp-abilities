@@ -139,6 +139,45 @@
 .inhale-wrap .inhale-mark svg { width: 56px; height: 56px; display: block; }
 .inhale-wrap .inhale-mark .inhale-mark-grid circle { fill: var(--fg-dim); }
 .inhale-wrap .inhale-mark .inhale-mark-accent circle { fill: var(--accent); }
+
+/* "by respira.press" attribution after the H1 text — Baskervville italic emerald per /brand. */
+.inhale-wrap .inhale-h1-by {
+	font-family: 'Baskervville', 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+	font-style: italic;
+	font-weight: 400;
+	font-size: 18px;
+	letter-spacing: 0;
+	color: #86efac;
+	white-space: nowrap;
+	margin-left: -6px;
+}
+.inhale-wrap .inhale-h1-by a {
+	color: inherit;
+	text-decoration: none;
+	border-bottom: 1px solid transparent;
+	transition: border-color 140ms ease;
+}
+.inhale-wrap .inhale-h1-by a:hover,
+.inhale-wrap .inhale-h1-by a:focus-visible {
+	border-bottom-color: #86efac;
+}
+
+/* Version pill — small emerald-tinted badge after the attribution. */
+.inhale-wrap .inhale-h1-version {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 9px;
+	background: rgba(134, 239, 172, 0.12);
+	color: #86efac;
+	border: 1px solid rgba(134, 239, 172, 0.38);
+	border-radius: 999px;
+	font-family: var(--rp-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	line-height: 1.4;
+	white-space: nowrap;
+}
 .inhale-wrap .page-desc {
 	margin: 8px 0 0;
 	font-size: 14px;

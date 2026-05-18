@@ -78,7 +78,33 @@ class Inhale_Plugin {
 				10,
 				1
 			);
+
+			add_action( 'current_screen', array( $this, 'suppress_foreign_admin_notices' ) );
 		}
+	}
+
+	/**
+	 * On the Inhale settings page only: drop every admin notice queued by
+	 * other plugins or the active theme. Inhale's own notices render inline
+	 * from Inhale_Settings_Page::render_notice() and are unaffected.
+	 *
+	 * Keeps the page focused on the one decision it's meant to support
+	 * (which abilities to expose) instead of bleeding through unrelated
+	 * license warnings, plugin-install nags and update banners.
+	 *
+	 * @param WP_Screen $screen Current admin screen.
+	 */
+	public function suppress_foreign_admin_notices( $screen ) {
+		if ( ! ( $screen instanceof WP_Screen ) ) {
+			return;
+		}
+		if ( 'settings_page_' . Inhale_Settings_Page::MENU_SLUG !== $screen->id ) {
+			return;
+		}
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
+		remove_all_actions( 'user_admin_notices' );
+		remove_all_actions( 'network_admin_notices' );
 	}
 
 	/**
