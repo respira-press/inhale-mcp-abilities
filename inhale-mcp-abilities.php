@@ -3,7 +3,7 @@
  * Plugin Name: Inhale: MCP Abilities
  * Plugin URI: https://respira.press/inhale
  * Description: Decide which registered WordPress abilities are visible to the default MCP server. A deliberate, considered way to expose abilities without writing PHP.
- * Version: 0.3.0
+ * Version: 0.3.1
  * Requires at least: 6.8
  * Requires PHP: 7.4
  * Author: Respira
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'INHALE_VERSION', '0.3.0' );
+define( 'INHALE_VERSION', '0.3.1' );
 define( 'INHALE_PLUGIN_FILE', __FILE__ );
 define( 'INHALE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'INHALE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

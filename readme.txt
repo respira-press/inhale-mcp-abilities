@@ -4,7 +4,7 @@ Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.3.0
+Stable tag: 0.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,12 +81,15 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 
 == Screenshots ==
 
-1. The Inhale: MCP Abilities settings page, showing the abilities table with checkboxes and annotation badges.
-2. The destructive confirmation flow.
-3. The Connection section with MCP server endpoint and client configuration examples.
-4. Dark mode view of the settings page.
+1. The Inhale: MCP Abilities settings page in light mode: page header with the "by respira.press" subtitle, sources card listing every plugin that registers abilities, filter tabs (All, Inhaled, Read-only, Destructive, Unannotated), search, and the wp-admin native abilities list table with iOS-style toggle switches in the Status column.
+2. The abilities list table close-up: row checkboxes for bulk selection, toggles per row (green when inhaled, grey when not), Source column showing the registering plugin, descriptions sourced from each ability's declared meta, and annotation badges (Read-only, Destructive, Idempotent).
+3. The Connection section showing the default MCP server endpoint with copy-to-clipboard, expandable client configuration guides for WP-CLI STDIO and HTTP transports with application passwords, and the About section with the Anthropic trademark disclaimer.
+4. Dark mode view: the entire wp-admin content column paints dark together with the Inhale page, the wordmark and subtitle render with brand-spec emerald (#86efac) typography, and the abilities table inherits the dark surface tokens.
 
 == Changelog ==
+
+= 0.3.1 =
+* Add the four wp.org Plugin Directory screenshots, captured at 1600x1000 from a live v0.3.0 install (Studio, WordPress 7.0-RC4, 155 registered abilities across Respira, Respira WooCommerce and WordPress core): the settings page hero, the abilities list close-up showing toggle switches and annotation badges, the Connection section with endpoint + transport guides, and the dark-mode view. Screenshot descriptions in readme.txt refreshed to match.
 
 = 0.3.0 =
 * Plugin Directory submission release. Full pass on the codebase to meet WordPress.org plugin review guidelines: every PHP file has an ABSPATH guard, every output is escaped through `esc_attr` / `esc_html` / `esc_url`, every input is sanitized and capability-checked, every state-changing request is nonce-verified, and translatable strings carry a text domain matching the plugin slug.
@@ -142,6 +145,9 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 * Adapter-managed abilities (`mcp-adapter/*` namespace) are surfaced as read-only "Managed" rows and skipped by the filter.
 
 == Upgrade Notice ==
+
+= 0.3.1 =
+Adds the four wp.org Plugin Directory screenshots; no runtime changes.
 
 = 0.3.0 =
 WordPress.org Plugin Directory submission release. Full codebase pass against the plugin review guidelines, page header restructure, dark/light theme parity, light-mode contrast fix, foreign-notice suppression on the Inhale page, and hardened uninstall (single-site and multisite). Safe to upgrade.
