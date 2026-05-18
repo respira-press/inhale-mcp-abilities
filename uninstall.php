@@ -25,10 +25,10 @@ delete_option( 'inhale_option_migrated_v020' );
 
 // Multisite: clean the same options on every blog if the plugin was network-installed.
 if ( function_exists( 'is_multisite' ) && is_multisite() && function_exists( 'get_sites' ) ) {
-	$sites = get_sites( array( 'fields' => 'ids' ) );
-	if ( is_array( $sites ) ) {
-		foreach ( $sites as $site_id ) {
-			switch_to_blog( (int) $site_id );
+	$inhale_sites = get_sites( array( 'fields' => 'ids' ) );
+	if ( is_array( $inhale_sites ) ) {
+		foreach ( $inhale_sites as $inhale_site_id ) {
+			switch_to_blog( (int) $inhale_site_id );
 			delete_option( 'mcp_adapter_public_abilities' );
 			delete_option( 'inhale_mcp_abilities_public_abilities' );
 			delete_option( 'inhale_option_migrated_v020' );

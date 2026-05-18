@@ -33,20 +33,21 @@ class Inhale_Assets {
 			return;
 		}
 
-		$min     = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-		$css_url = INHALE_PLUGIN_URL . 'assets/css/admin' . $min . '.css';
-		$js_url  = INHALE_PLUGIN_URL . 'assets/js/admin' . $min . '.js';
-
+		// Single source-of-truth assets. The plugin admin surface is
+		// small and loads on one settings page only; shipping a separate
+		// minified bundle would just duplicate the same code under a
+		// different name without a meaningful payload reduction, and
+		// the WordPress Plugin Directory prefers human-readable code.
 		wp_enqueue_style(
 			'inhale-mcp-abilities-admin',
-			$css_url,
+			INHALE_PLUGIN_URL . 'assets/css/admin.css',
 			array(),
 			INHALE_VERSION
 		);
 
 		wp_enqueue_script(
 			'inhale-mcp-abilities-admin',
-			$js_url,
+			INHALE_PLUGIN_URL . 'assets/js/admin.js',
 			array(),
 			INHALE_VERSION,
 			true

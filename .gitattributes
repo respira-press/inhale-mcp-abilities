@@ -1,12 +1,20 @@
-# Files excluded from the wp.org export
-/.gitattributes export-ignore
-/.gitignore     export-ignore
-/.github        export-ignore
-/.editorconfig  export-ignore
+# Files excluded from `git archive` exports (used to build the
+# wp.org submission zip and any GitHub release tarball).
+# Anything listed here will NOT appear in the plugin zip or in the
+# wp.org SVN /trunk/.
+/.gitattributes    export-ignore
+/.gitignore        export-ignore
+/.github           export-ignore
+/.editorconfig     export-ignore
+/.distignore       export-ignore
 /phpunit.xml.dist  export-ignore
-/phpcs.xml      export-ignore
-/phpcs.xml.dist export-ignore
-/composer.json  export-ignore
-/composer.lock  export-ignore
-/tests          export-ignore
-/wp-org-assets  export-ignore
+/phpcs.xml         export-ignore
+/phpcs.xml.dist    export-ignore
+/composer.json     export-ignore
+/composer.lock     export-ignore
+/package.json      export-ignore
+/package-lock.json export-ignore
+/README.md         export-ignore
+/tests             export-ignore
+/docs              export-ignore
+/wp-org-assets     export-ignore

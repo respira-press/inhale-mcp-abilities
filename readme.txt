@@ -4,11 +4,11 @@ Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.3.1
+Stable tag: 0.3.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A deliberate, considered way to expose registered WordPress abilities to the default MCP server. Settings-only. Safety-aware.
+A small settings page that lets WordPress site administrators choose which registered abilities are exposed to the default MCP server.
 
 == Description ==
 
@@ -88,6 +88,11 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 
 == Changelog ==
 
+= 0.3.2 =
+* Plugin Check (PCP) pass. Short description rewritten in standard English. Translators comment moved to sit directly above the `__()` call so PCP's i18n linter sees it. Inline `phpcs:ignore` annotations added on the read-only `$_GET['notice']` display path (post-redirect-get banner; no state change, value whitelisted) and on the `$_POST['abilities']` array read (sanitized per element below). Inhale_I18n drops the now-discouraged `load_plugin_textdomain()` call since wp.org auto-loads translations for plugins hosted in the Plugin Directory. Multisite-cleanup variables in `uninstall.php` prefixed (`$inhale_sites`, `$inhale_site_id`) to satisfy the PrefixAllGlobals rule.
+* Asset loader simplified. The `admin.min.css` / `admin.min.js` duplicates have been removed; the single `admin.css` / `admin.js` files are the only enqueued assets. The Plugin Directory prefers human-readable code; the admin page is small and loaded on one settings screen only, so a separate minified bundle wasn't pulling any real payload weight.
+* GitHub archive exclusions hardened. README.md, .distignore and a few other dev-only files now carry the `export-ignore` attribute, so the submission zip stays focused on runtime files.
+
 = 0.3.1 =
 * Add the four wp.org Plugin Directory screenshots, captured at 1600x1000 from a live v0.3.0 install (Studio, WordPress 7.0-RC4, 155 registered abilities across Respira, Respira WooCommerce and WordPress core): the settings page hero, the abilities list close-up showing toggle switches and annotation badges, the Connection section with endpoint + transport guides, and the dark-mode view. Screenshot descriptions in readme.txt refreshed to match.
 
@@ -145,6 +150,9 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 * Adapter-managed abilities (`mcp-adapter/*` namespace) are surfaced as read-only "Managed" rows and skipped by the filter.
 
 == Upgrade Notice ==
+
+= 0.3.2 =
+Plugin Check (PCP) pass: i18n + sanitization annotations, simplified asset loader, hardened export exclusions. No behavioral change. Safe to upgrade.
 
 = 0.3.1 =
 Adds the four wp.org Plugin Directory screenshots; no runtime changes.

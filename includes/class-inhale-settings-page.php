@@ -79,14 +79,21 @@ class Inhale_Settings_Page {
 			return;
 		}
 
-		$abilities = isset( $_POST['abilities'] ) ? (array) wp_unslash( $_POST['abilities'] ) : array();
+		// Sanitize each posted ability name on entry. Nonce + capability
+		// were verified above so this is post-auth user input that still
+		// must be normalized to safe scalar strings before the registry
+		// lookup below.
+		$abilities_raw = isset( $_POST['abilities'] ) ? wp_unslash( $_POST['abilities'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per-element below.
+		if ( ! is_array( $abilities_raw ) ) {
+			$abilities_raw = array();
+		}
 		$abilities = array_values(
 			array_filter(
 				array_map(
 					static function ( $entry ) {
 						return is_string( $entry ) ? sanitize_text_field( $entry ) : '';
 					},
-					$abilities
+					$abilities_raw
 				)
 			)
 		);
@@ -158,11 +165,15 @@ class Inhale_Settings_Page {
 	 * Render any success/info notice triggered by the previous request.
 	 */
 	private function render_notice() {
-		if ( ! isset( $_GET['notice'] ) ) {
+		// Read-only display path: render a confirmation banner after
+		// a redirect from a nonce-verified POST. The notice code is
+		// matched against a hardcoded whitelist below, and the count
+		// is cast to int. No state change here, so no nonce required.
+		if ( ! isset( $_GET['notice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only post-redirect-get banner.
 			return;
 		}
-		$code  = sanitize_key( wp_unslash( $_GET['notice'] ) );
-		$count = isset( $_GET['notice_count'] ) ? (int) $_GET['notice_count'] : 0;
+		$code  = sanitize_key( wp_unslash( $_GET['notice'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- whitelisted in switch below.
+		$count = isset( $_GET['notice_count'] ) ? (int) $_GET['notice_count'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- int cast, display-only.
 
 		switch ( $code ) {
 			case 'inhaled':
@@ -843,8 +854,8 @@ class Inhale_Settings_Page {
 
 			<p class="muted inhale-respira-footer"><?php
 				echo wp_kses(
-					/* translators: 1: link to Respira for WordPress, 2: link to respira.press. */
 					sprintf(
+						/* translators: 1: link to Respira for WordPress, 2: link to respira.press. */
 						__( 'The Inhale: MCP Abilities plugin is built by Respira, which ships AI infrastructure for WordPress. The main product is %1$s, a safety layer that registers 130+ abilities across 12 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 6 more) with snapshot-before-write protection, render validation and one-click rollback. Learn more at %2$s.', 'inhale-mcp-abilities' ),
 						'<a href="https://respira.press" target="_blank" rel="noopener noreferrer">Respira for WordPress</a>',
 						'<a href="https://respira.press" target="_blank" rel="noopener noreferrer">respira.press</a>'

@@ -1,6 +1,11 @@
 <?php
 /**
- * Loads the inhale-mcp-abilities text domain.
+ * Text-domain placeholder for the inhale-mcp-abilities plugin.
+ *
+ * Since WordPress 4.6, translations for plugins hosted on the .org
+ * Plugin Directory are loaded automatically by core. This class is
+ * kept as a thin placeholder so the bootstrap can still instantiate
+ * Inhale_I18n without any side effects.
  *
  * @package Inhale_MCP_Abilities
  */
@@ -10,25 +15,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Inhale_I18n: text domain loader.
+ * Inhale_I18n: no-op text-domain placeholder.
  */
 class Inhale_I18n {
 
 	/**
-	 * Wire the loader to `init`.
+	 * Empty constructor. WordPress.org auto-loads translations under
+	 * the plugin slug, so no manual loader is needed.
 	 */
 	public function __construct() {
-		add_action( 'init', array( $this, 'load_textdomain' ), 1 );
-	}
-
-	/**
-	 * Load the plugin text domain.
-	 */
-	public function load_textdomain() {
-		load_plugin_textdomain(
-			'inhale-mcp-abilities',
-			false,
-			dirname( plugin_basename( INHALE_PLUGIN_FILE ) ) . '/languages'
-		);
+		// Intentionally empty.
 	}
 }
