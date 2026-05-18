@@ -32,16 +32,27 @@
 		} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 			initial = 'dark';
 		}
-		wrap.setAttribute('data-theme', initial);
+		applyTheme(initial);
 		syncTooltip(initial);
 
 		if (btn) {
 			btn.addEventListener('click', function () {
 				var next = wrap.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-				wrap.setAttribute('data-theme', next);
+				applyTheme(next);
 				try { localStorage.setItem(STORE, next); } catch (e) { /* swallow */ }
 				syncTooltip(next);
 			});
+		}
+
+		// Mirror the theme onto <body> so CSS can paint the wp-admin
+		// chrome (#wpbody-content, .wrap top margin, etc.) without a
+		// visible "white bar" where .inhale-wrap doesn't reach.
+		function applyTheme(t) {
+			wrap.setAttribute('data-theme', t);
+			if (document.body) {
+				document.body.classList.toggle('inhale-theme-dark', t === 'dark');
+				document.body.classList.toggle('inhale-theme-light', t === 'light');
+			}
 		}
 
 		function syncTooltip(cur) {

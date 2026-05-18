@@ -4,7 +4,7 @@ Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.2.2
+Stable tag: 0.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -87,6 +87,12 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 4. Dark mode view of the settings page.
 
 == Changelog ==
+
+= 0.2.3 =
+* Eliminate the dark/light theme layout shift. Background, padding and margin now apply to the base `.inhale-wrap` instead of only the dark variant, so toggling theme no longer pushes the title up or down.
+* Paint `#wpbody-content` dark too when the dark theme is active, via a body class (`inhale-theme-dark`) the JS adds in lockstep with the `data-theme` attribute. Closes the "white bar at the top" gap between the WP admin bar and the Inhale page in dark mode.
+* Restructure the page header: "by respira.press" is now a subtitle directly under the H1 in 14px Baskervville italic emerald, aligned with the title block next to the dot-grid logo.
+* Move the version pill from the H1 to the right-side toolbar, sized down to 9.5px monospace lowercase. Sits between the Documentation link and the theme toggle.
 
 = 0.2.2 =
 * Suppress every admin notice queued by other plugins or the active theme on the Inhale settings page. Inhale's own notices (rendered inline via render_notice()) survive, every other one (license warnings, plugin-install nags, update banners, etc.) is dropped on this screen only. Implemented via `remove_all_actions( 'admin_notices' / 'all_admin_notices' / 'user_admin_notices' / 'network_admin_notices' )` on the `current_screen` hook, scoped to `settings_page_inhale-mcp-abilities`.
