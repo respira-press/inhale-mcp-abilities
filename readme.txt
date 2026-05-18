@@ -4,7 +4,7 @@ Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.1.1
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -87,6 +87,10 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 4. Dark mode view of the settings page.
 
 == Changelog ==
+
+= 0.2.0 =
+* Rename the option key from `inhale_mcp_abilities_public_abilities` to the canonical `mcp_adapter_public_abilities` so Inhale shares storage with the settings UI proposed upstream in WordPress/mcp-adapter PR #184. A one-shot migration on plugin upgrade preserves all v0.1.x selections, deletes the legacy key, and sets a `inhale_option_migrated_v020` flag so it runs once.
+* No UI or behavior changes. Sites with no prior selections are unaffected.
 
 = 0.1.1 =
 * Hardening pass: the permission-denied path in the settings page render now passes HTTP response code 403 and a back link to `wp_die()`, so access logs and automated clients see an authorization failure instead of a generic error.
