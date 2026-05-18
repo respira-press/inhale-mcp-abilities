@@ -602,35 +602,54 @@
 }
 .inhale-wrap .wp-list-table tr.disabled .source-name { color: var(--disabled-fg); }
 
-.inhale-wrap .status-pill {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	font-family: var(--rp-font-body);
-	font-size: 12.5px;
-	white-space: nowrap;
-	line-height: 1.4;
+/* iOS-style toggle in the Status column. Replaces the v0.1.x status pill. */
+.inhale-wrap .inhale-toggle {
+	position: relative;
+	display: inline-block;
+	width: 38px;
+	height: 22px;
+	vertical-align: middle;
 }
-.inhale-wrap .status-pill::before {
+.inhale-wrap .inhale-toggle input {
+	position: absolute;
+	opacity: 0;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	cursor: pointer;
+	z-index: 1;
+}
+.inhale-wrap .inhale-toggle .inhale-toggle-slider {
+	position: absolute;
+	inset: 0;
+	background: #c1c8d1;
+	border-radius: 22px;
+	transition: background 160ms ease;
+	pointer-events: none;
+}
+.inhale-wrap .inhale-toggle .inhale-toggle-slider::before {
 	content: "";
-	width: 7px;
-	height: 7px;
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 18px;
+	height: 18px;
+	background: #ffffff;
 	border-radius: 50%;
-	flex-shrink: 0;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+	transition: transform 160ms ease;
 }
-.inhale-wrap .status-pill.inhaled { color: var(--accent); font-weight: 500; }
-.inhale-wrap .status-pill.inhaled::before { background: var(--accent); }
-.inhale-wrap .status-pill.managed { color: var(--fg-muted); }
-.inhale-wrap .status-pill.managed::before {
-	background: transparent;
-	border: 1px solid var(--fg-muted);
-	width: 6px;
-	height: 6px;
+.inhale-wrap .inhale-toggle input:checked + .inhale-toggle-slider { background: #34d399; }
+.inhale-wrap .inhale-toggle input:checked + .inhale-toggle-slider::before { transform: translateX(16px); }
+.inhale-wrap .inhale-toggle input:focus-visible + .inhale-toggle-slider {
+	outline: 2px solid var(--fg-link, #2271b1);
+	outline-offset: 2px;
 }
-.inhale-wrap .status-empty {
-	color: var(--fg-dim);
-	font-family: var(--rp-font-mono);
-	font-size: 13px;
+.inhale-wrap .inhale-toggle input:disabled { cursor: not-allowed; }
+.inhale-wrap .inhale-toggle input:disabled + .inhale-toggle-slider {
+	opacity: 0.45;
+	cursor: not-allowed;
 }
 
 .inhale-wrap th.sortable {

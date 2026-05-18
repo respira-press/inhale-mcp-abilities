@@ -4,7 +4,7 @@ Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -87,6 +87,10 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 4. Dark mode view of the settings page.
 
 == Changelog ==
+
+= 0.2.1 =
+* Replace the Status column text pill ("Inhaled" / em-dash) with an iOS-style toggle switch. Green when the ability is inhaled, off when not. Clicking the toggle commits the change immediately, same single-row flow as the existing row-hover quick action. Managed rows (mcp-adapter namespace) render a disabled toggle. Destructive abilities still trigger the confirmation dialog before flipping on.
+* No behavioral change on saved data; the option key remains `mcp_adapter_public_abilities` from v0.2.0.
 
 = 0.2.0 =
 * Rename the option key from `inhale_mcp_abilities_public_abilities` to the canonical `mcp_adapter_public_abilities` so Inhale shares storage with the settings UI proposed upstream in WordPress/mcp-adapter PR #184. A one-shot migration on plugin upgrade preserves all v0.1.x selections, deletes the legacy key, and sets a `inhale_option_migrated_v020` flag so it runs once.

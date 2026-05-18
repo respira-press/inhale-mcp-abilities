@@ -472,6 +472,38 @@
 			});
 		});
 
+		/* ─── Status-column toggle (iOS-style) ──────────────────── */
+		var statusToggles = document.querySelectorAll('.inhale-wrap .inhale-toggle-input');
+		statusToggles.forEach(function (toggle) {
+			toggle.addEventListener('change', function () {
+				if (!form) { return; }
+
+				var ability = toggle.getAttribute('data-ability');
+				var isDestructive = toggle.getAttribute('data-destructive') === '1';
+				var action = toggle.checked ? 'inhale' : 'exhale';
+				if (!ability) { return; }
+
+				if (action === 'inhale' && isDestructive) {
+					if (!window.confirm('Inhale "' + ability + '"? This ability can modify content on your site.')) {
+						toggle.checked = false;
+						return;
+					}
+				}
+
+				dataRows.forEach(function (tr) {
+					var m = meta.get(tr);
+					if (!m || !m.input || m.managed) { return; }
+					m.input.checked = (m.ability === ability);
+				});
+
+				if (bulkSelectsTop) { bulkSelectsTop.value = action; }
+				if (bulkSelectsBot) { bulkSelectsBot.value = action; }
+
+				form.setAttribute('data-skip-guard', '1');
+				form.submit();
+			});
+		});
+
 		apply();
 	})();
 

@@ -994,11 +994,23 @@ class Inhale_Settings_Page {
 			</td>
 			<td class="col-status">
 				<?php if ( $managed ) : ?>
-					<span class="status-pill managed"><?php esc_html_e( 'Managed', 'inhale-mcp-abilities' ); ?></span>
-				<?php elseif ( $checked ) : ?>
-					<span class="status-pill inhaled"><?php esc_html_e( 'Inhaled', 'inhale-mcp-abilities' ); ?></span>
+					<label class="inhale-toggle" title="<?php esc_attr_e( 'Managed by mcp-adapter — cannot toggle', 'inhale-mcp-abilities' ); ?>">
+						<input type="checkbox" disabled aria-label="<?php echo esc_attr( sprintf( /* translators: %s: ability name. */ __( 'Managed by mcp-adapter: %s', 'inhale-mcp-abilities' ), $name ) ); ?>" />
+						<span class="inhale-toggle-slider"></span>
+					</label>
 				<?php else : ?>
-					<span class="status-empty" aria-label="<?php esc_attr_e( 'Not inhaled', 'inhale-mcp-abilities' ); ?>">—</span>
+					<label class="inhale-toggle">
+						<input type="checkbox"
+							class="inhale-toggle-input"
+							data-ability="<?php echo esc_attr( $name ); ?>"
+							data-destructive="<?php echo $is_destructive ? '1' : '0'; ?>"
+							<?php checked( $checked ); ?>
+							aria-label="<?php echo esc_attr( $checked
+								? sprintf( /* translators: %s: ability name. */ __( 'Exhale %s', 'inhale-mcp-abilities' ), $name )
+								: sprintf( /* translators: %s: ability name. */ __( 'Inhale %s', 'inhale-mcp-abilities' ), $name )
+							); ?>" />
+						<span class="inhale-toggle-slider"></span>
+					</label>
 				<?php endif; ?>
 			</td>
 			<td class="col-annot">
