@@ -4,7 +4,7 @@ Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.2.3
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,14 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 
 == Changelog ==
 
+= 0.3.0 =
+* Plugin Directory submission release. Full pass on the codebase to meet WordPress.org plugin review guidelines: every PHP file has an ABSPATH guard, every output is escaped through `esc_attr` / `esc_html` / `esc_url`, every input is sanitized and capability-checked, every state-changing request is nonce-verified, and translatable strings carry a text domain matching the plugin slug.
+* Settings page chrome: page header restructure with "by respira.press" as a Baskervville italic subtitle and a small version pill in the right-side toolbar. Both adapt per theme via `--accent-text` and `--accent-border` tokens so contrast is AA on light and dark surfaces.
+* Theme toggle: layout shift between dark and light is gone. Background, padding and margin moved to the base `.inhale-wrap` selector and the dark variant only redefines color tokens. A body class (`inhale-theme-dark`) mirrors the data-theme attribute so the WP admin content column, sidebar and footer all paint dark together with no "white band" anywhere on the page.
+* Notifications scoping: every admin notice queued by other plugins or the active theme is suppressed on the Inhale settings page (license nags, plugin-install banners, trial reminders, etc.). Inhale's own success / warning notices render inline and survive the cleanup.
+* Uninstall hardening: `uninstall.php` now removes every option this plugin has ever written: the canonical `mcp_adapter_public_abilities` key (v0.2.0+), the legacy `inhale_mcp_abilities_public_abilities` key (v0.1.x), and the `inhale_option_migrated_v020` migration flag. Multisite installations sweep every blog in `get_sites()` so no orphaned wp_options rows remain.
+* Tested with WordPress 7.0-RC4 and PHP 8.4 on Studio. Confirmed no remote calls, no tracking, no obfuscated code, no external dependencies. License is GPL-2.0-or-later with the full GPL text included in `LICENSE`.
+
 = 0.2.3 =
 * Eliminate the dark/light theme layout shift. Background, padding and margin now apply to the base `.inhale-wrap` instead of only the dark variant, so toggling theme no longer pushes the title up or down.
 * Paint `#wpbody-content` dark too when the dark theme is active, via a body class (`inhale-theme-dark`) the JS adds in lockstep with the `data-theme` attribute. Closes the "white bar at the top" gap between the WP admin bar and the Inhale page in dark mode.
@@ -134,6 +142,12 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 * Adapter-managed abilities (`mcp-adapter/*` namespace) are surfaced as read-only "Managed" rows and skipped by the filter.
 
 == Upgrade Notice ==
+
+= 0.3.0 =
+WordPress.org Plugin Directory submission release. Full codebase pass against the plugin review guidelines, page header restructure, dark/light theme parity, light-mode contrast fix, foreign-notice suppression on the Inhale page, and hardened uninstall (single-site and multisite). Safe to upgrade.
+
+= 0.2.0 =
+Option key renamed to the canonical `mcp_adapter_public_abilities` shared with WordPress/mcp-adapter PR #184. A one-shot migration runs on plugin upgrade so v0.1.x selections are preserved automatically. Safe to upgrade.
 
 = 0.1.1 =
 Security hardening pass on the settings page render path. No new features. Safe to upgrade.

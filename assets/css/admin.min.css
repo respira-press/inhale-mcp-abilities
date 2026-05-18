@@ -36,6 +36,8 @@
 
 	--accent:         var(--rp-emerald-600);
 	--accent-soft:    rgba(5, 150, 105, 0.10);
+	--accent-text:    var(--rp-emerald-700);
+	--accent-border:  rgba(5, 150, 105, 0.45);
 	--focus-ring:     rgba(16, 185, 129, 0.30);
 
 	--warn-fg:        #b45309;
@@ -80,6 +82,8 @@
 
 	--accent:         var(--rp-emerald-400);
 	--accent-soft:    rgba(52, 211, 153, 0.10);
+	--accent-text:    var(--rp-emerald-300);
+	--accent-border:  rgba(134, 239, 172, 0.42);
 	--focus-ring:     rgba(52, 211, 153, 0.35);
 
 	--warn-fg:        #fbbf24;
@@ -90,14 +94,23 @@
 	--disabled-fg:    #5e6c7a;
 }
 
-/* Extend the dark surface up through the wp-admin chrome above .inhale-wrap
-   so there's no "white bar" between the WP admin bar and the Inhale page. */
+/* Extend the dark surface across the entire wp-admin content column so
+   there's no "white bar" above, below, or to the side of .inhale-wrap. */
+body.inhale-theme-dark,
+body.inhale-theme-dark #wpwrap,
+body.inhale-theme-dark #wpcontent,
+body.inhale-theme-dark #wpbody,
 body.inhale-theme-dark #wpbody-content,
-body.inhale-theme-dark #wpbody {
+body.inhale-theme-dark #wpfooter {
 	background: #070a0d;
 }
 body.inhale-theme-dark #wpbody-content > .wrap {
 	margin-top: 0;
+}
+body.inhale-theme-dark #wpfooter,
+body.inhale-theme-dark #wpfooter p,
+body.inhale-theme-dark #wpfooter a {
+	color: #5e6c7a;
 }
 
 .inhale-wrap a {
@@ -167,7 +180,9 @@ body.inhale-theme-dark #wpbody-content > .wrap {
 	line-height: 1.2;
 }
 
-/* "by respira.press" — subtitle under the title in Baskervville italic emerald per /brand. */
+/* "by respira.press" — subtitle under the title in Baskervville italic emerald per /brand.
+   Color uses --accent-text so the shade adapts per theme (emerald-700 on light surfaces
+   for AA contrast, emerald-300 on dark per the brand spec). */
 .inhale-wrap .inhale-h1-by {
 	font-family: 'Baskervville', 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
 	font-style: italic;
@@ -175,7 +190,7 @@ body.inhale-theme-dark #wpbody-content > .wrap {
 	font-size: 14px;
 	line-height: 1.2;
 	letter-spacing: 0;
-	color: #86efac;
+	color: var(--accent-text);
 	white-space: nowrap;
 }
 .inhale-wrap .inhale-h1-by a {
@@ -186,17 +201,18 @@ body.inhale-theme-dark #wpbody-content > .wrap {
 }
 .inhale-wrap .inhale-h1-by a:hover,
 .inhale-wrap .inhale-h1-by a:focus-visible {
-	border-bottom-color: #86efac;
+	border-bottom-color: currentColor;
 }
 
-/* Version pill — tiny emerald badge in the right-side toolbar. */
+/* Version pill — tiny emerald badge in the right-side toolbar.
+   Tokens adapt per theme so the pill stays readable on both surfaces. */
 .inhale-wrap .page-head-tools .inhale-h1-version {
 	display: inline-flex;
 	align-items: center;
 	padding: 1px 7px;
-	background: rgba(134, 239, 172, 0.12);
-	color: #86efac;
-	border: 1px solid rgba(134, 239, 172, 0.38);
+	background: var(--accent-soft);
+	color: var(--accent-text);
+	border: 1px solid var(--accent-border);
 	border-radius: 999px;
 	font-family: var(--rp-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
 	font-size: 9.5px;

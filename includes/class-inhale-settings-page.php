@@ -975,7 +975,7 @@ class Inhale_Settings_Page {
 						class="inhale-ability-checkbox"
 						name="abilities[]"
 						value="<?php echo esc_attr( $name ); ?>"
-						data-destructive="<?php echo $is_destructive ? '1' : '0'; ?>"
+						data-destructive="<?php echo esc_attr( $is_destructive ? '1' : '0' ); ?>"
 						aria-label="<?php echo esc_attr( sprintf( $single_label, $name ) ); ?>" />
 				<?php endif; ?>
 			</td>
@@ -986,7 +986,7 @@ class Inhale_Settings_Page {
 						<?php if ( $checked ) : ?>
 							<span class="exhale"><a href="#" class="inhale-row-action" data-action="exhale" data-ability="<?php echo esc_attr( $name ); ?>"><?php esc_html_e( 'Exhale', 'inhale-mcp-abilities' ); ?></a></span>
 						<?php else : ?>
-							<span class="inhale"><a href="#" class="inhale-row-action" data-action="inhale" data-ability="<?php echo esc_attr( $name ); ?>" data-destructive="<?php echo $is_destructive ? '1' : '0'; ?>"><?php esc_html_e( 'Inhale', 'inhale-mcp-abilities' ); ?></a></span>
+							<span class="inhale"><a href="#" class="inhale-row-action" data-action="inhale" data-ability="<?php echo esc_attr( $name ); ?>" data-destructive="<?php echo esc_attr( $is_destructive ? '1' : '0' ); ?>"><?php esc_html_e( 'Inhale', 'inhale-mcp-abilities' ); ?></a></span>
 						<?php endif; ?>
 					</div>
 				<?php endif; ?>
@@ -1010,7 +1010,7 @@ class Inhale_Settings_Page {
 						<input type="checkbox"
 							class="inhale-toggle-input"
 							data-ability="<?php echo esc_attr( $name ); ?>"
-							data-destructive="<?php echo $is_destructive ? '1' : '0'; ?>"
+							data-destructive="<?php echo esc_attr( $is_destructive ? '1' : '0' ); ?>"
 							<?php checked( $checked ); ?>
 							aria-label="<?php echo esc_attr( $checked
 								? sprintf( /* translators: %s: ability name. */ __( 'Exhale %s', 'inhale-mcp-abilities' ), $name )
