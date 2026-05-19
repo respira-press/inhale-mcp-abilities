@@ -3,7 +3,7 @@
  * Renders Settings > Inhale MCP Abilities and the Settings API plumbing
  * that backs it.
  *
- * @package Inhale_MCP_Abilities
+ * @package Respira_Inhale_MCP_Abilities
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -11,15 +11,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Inhale_Settings_Page: admin menu, option registration, and page render.
+ * Respira_Inhale_Settings_Page: admin menu, option registration, and page render.
  */
-class Inhale_Settings_Page {
+class Respira_Inhale_Settings_Page {
 
 	const MENU_SLUG     = 'inhale-mcp-abilities';
 	const CAPABILITY    = 'manage_options';
 	const MANAGED_NS    = 'mcp-adapter/';
-	const DEFAULT_SERVER_ROUTE = '/wp-json/mcp/mcp-adapter-default-server';
-	const NONCE_ACTION  = 'inhale_mcp_apply';
+	const DEFAULT_SERVER_REST_PATH = 'mcp/mcp-adapter-default-server';
+	const NONCE_ACTION  = 'respira_inhale_apply';
 
 	/**
 	 * Cache for the discovered abilities (per request).
@@ -137,7 +137,13 @@ class Inhale_Settings_Page {
 			$new_list = array_values( array_diff( $current, $abilities ) );
 		}
 
-		update_option( INHALE_OPTION_NAME, $new_list );
+		update_option( RESPIRA_INHALE_OPTION_NAME, $new_list );
+
+		// Write-through to the canonical compat key proposed first-party in
+		// WordPress/mcp-adapter#184. If that PR ever merges and the upstream
+		// adapter ships its own settings UI under this key, both surfaces
+		// will see the same selection state with no migration required.
+		update_option( RESPIRA_INHALE_COMPAT_OPTION_NAME, $new_list, false );
 
 		$this->redirect_with_message(
 			'inhale' === $action ? 'inhaled' : 'exhaled',
@@ -475,7 +481,7 @@ class Inhale_Settings_Page {
 		 *
 		 * @param array<string, string> $map Default map.
 		 */
-		return apply_filters( 'inhale_mcp_abilities_source_labels', $map );
+		return apply_filters( 'respira_inhale_source_labels', $map );
 	}
 
 	/**
@@ -538,7 +544,10 @@ class Inhale_Settings_Page {
 		$counts          = $this->build_counts( $abilities, $exposed );
 		$sources         = $this->build_source_list( $abilities );
 		$source_summary  = $this->build_source_summary( $abilities );
-		$endpoint        = esc_url( home_url( self::DEFAULT_SERVER_ROUTE ) );
+		// Build the endpoint with rest_url() so the REST base (custom prefixes,
+		// non-default permalink structures, multisite blogs, sub-directory
+		// installs, etc.) is resolved by WordPress core rather than hardcoded.
+		$endpoint        = esc_url( rest_url( self::DEFAULT_SERVER_REST_PATH ) );
 
 		?>
 		<div class="wrap inhale-wrap" data-theme="light">
@@ -574,7 +583,7 @@ class Inhale_Settings_Page {
 					<span class="accent-line" aria-hidden="true"></span>
 				</div>
 				<div class="page-head-tools">
-					<span class="inhale-h1-version" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: plugin version. */ __( 'Plugin version %s', 'inhale-mcp-abilities' ), INHALE_VERSION ) ); ?>">v<?php echo esc_html( INHALE_VERSION ); ?></span>
+					<span class="inhale-h1-version" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: plugin version. */ __( 'Plugin version %s', 'inhale-mcp-abilities' ), RESPIRA_INHALE_VERSION ) ); ?>">v<?php echo esc_html( RESPIRA_INHALE_VERSION ); ?></span>
 					<a class="docs-link"
 						href="https://respira.press/inhale"
 						target="_blank"
@@ -970,7 +979,7 @@ class Inhale_Settings_Page {
 			$row_attrs[] = 'data-managed="true"';
 		}
 
-		$cb_id        = 'inhale_ab_' . md5( $name );
+		$cb_id        = 'respira_inhale_ab_' . md5( $name );
 		$single_label = $checked
 			? /* translators: %s: ability name. */ __( 'Select %s for bulk action (currently inhaled)', 'inhale-mcp-abilities' )
 			: /* translators: %s: ability name. */ __( 'Select %s for bulk action (currently not inhaled)', 'inhale-mcp-abilities' );
@@ -1146,7 +1155,7 @@ class Inhale_Settings_Page {
 		 * @param string $source Source label.
 		 */
 		return apply_filters(
-			'inhale_mcp_abilities_source_admin_url',
+			'respira_inhale_source_admin_url',
 			admin_url( 'plugins.php?plugin_status=active&s=' . rawurlencode( $source_label ) ),
 			$source_label
 		);
@@ -1158,7 +1167,7 @@ class Inhale_Settings_Page {
 	 * @return array<int, string>
 	 */
 	private function get_exposed() {
-		$raw = get_option( INHALE_OPTION_NAME, array() );
+		$raw = get_option( RESPIRA_INHALE_OPTION_NAME, array() );
 		if ( ! is_array( $raw ) ) {
 			return array();
 		}

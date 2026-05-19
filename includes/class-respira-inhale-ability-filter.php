@@ -6,7 +6,7 @@
  * This is the canonical pattern documented by Weston Ruter:
  * https://weston.ruter.net/2026/04/08/adding-an-mcp-server-to-the-wordpress-core-development-environment/
  *
- * @package Inhale_MCP_Abilities
+ * @package Respira_Inhale_MCP_Abilities
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,10 +14,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Inhale_Ability_Filter: opts ability args into meta.mcp.public when the
- * ability is in the saved option.
+ * Respira_Inhale_Ability_Filter: opts ability args into meta.mcp.public when
+ * the ability is in the saved option.
  */
-class Inhale_Ability_Filter {
+class Respira_Inhale_Ability_Filter {
 
 	/**
 	 * Wire the filter.
@@ -31,6 +31,12 @@ class Inhale_Ability_Filter {
 	 *
 	 * Abilities registered under the `mcp-adapter/` namespace are skipped:
 	 * the adapter manages its own surface.
+	 *
+	 * Reads from the plugin-prefixed primary option first; if that is
+	 * empty, falls back to the canonical compat key proposed in
+	 * WordPress/mcp-adapter#184 so that, if the upstream adapter UI
+	 * ever ships and writes to that key, the filter still honors the
+	 * administrator's selection.
 	 *
 	 * @param array  $args         Ability registration args.
 	 * @param string $ability_name The ability name being registered.
@@ -49,7 +55,14 @@ class Inhale_Ability_Filter {
 			return $args;
 		}
 
-		$exposed = get_option( INHALE_OPTION_NAME, array() );
+		$exposed = get_option( RESPIRA_INHALE_OPTION_NAME, array() );
+		if ( ! is_array( $exposed ) || empty( $exposed ) ) {
+			$compat = get_option( RESPIRA_INHALE_COMPAT_OPTION_NAME, array() );
+			if ( is_array( $compat ) && ! empty( $compat ) ) {
+				$exposed = $compat;
+			}
+		}
+
 		if ( ! is_array( $exposed ) ) {
 			return $args;
 		}

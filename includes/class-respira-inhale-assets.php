@@ -2,7 +2,7 @@
 /**
  * Enqueues admin CSS and JS on the Inhale settings page only.
  *
- * @package Inhale_MCP_Abilities
+ * @package Respira_Inhale_MCP_Abilities
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Inhale_Assets: scoped asset loader.
+ * Respira_Inhale_Assets: scoped asset loader.
  */
-class Inhale_Assets {
+class Respira_Inhale_Assets {
 
 	const HOOK_SUFFIX = 'settings_page_inhale-mcp-abilities';
 
@@ -40,16 +40,16 @@ class Inhale_Assets {
 		// the WordPress Plugin Directory prefers human-readable code.
 		wp_enqueue_style(
 			'inhale-mcp-abilities-admin',
-			INHALE_PLUGIN_URL . 'assets/css/admin.css',
+			RESPIRA_INHALE_PLUGIN_URL . 'assets/css/admin.css',
 			array(),
-			INHALE_VERSION
+			RESPIRA_INHALE_VERSION
 		);
 
 		wp_enqueue_script(
 			'inhale-mcp-abilities-admin',
-			INHALE_PLUGIN_URL . 'assets/js/admin.js',
+			RESPIRA_INHALE_PLUGIN_URL . 'assets/js/admin.js',
 			array(),
-			INHALE_VERSION,
+			RESPIRA_INHALE_VERSION,
 			true
 		);
 	}

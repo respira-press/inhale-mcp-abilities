@@ -1,10 +1,10 @@
-=== Inhale: MCP Abilities ===
-Contributors: respira
+=== Inhale: MCP Abilities by Respira ===
+Contributors: urbankidro
 Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.3.2
+Stable tag: 0.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,15 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 
 == Changelog ==
 
+= 0.4.0 =
+* Plugin Directory review feedback. Three fixes addressing the initial review.
+* Generic prefixes replaced. Every constant, class, function, filter, nonce and CSS ID prefixed with `RESPIRA_INHALE_*` / `Respira_Inhale_*` / `respira_inhale_*` (was `INHALE_*` / `Inhale_*` / `inhale_*`). Class files renamed to `class-respira-inhale-*.php`. The new prefix is unique to this plugin and does not collide with the wider `respira_*` namespace used by the main Respira for WordPress plugin.
+* Option key properly prefixed. Primary storage is now `respira_inhale_public_abilities`. The plugin also mirrors writes to `mcp_adapter_public_abilities` (the canonical key proposed in WordPress/mcp-adapter#184) and reads it as a fallback, so the two surfaces share state if and when the upstream adapter ships its own settings UI. A one-shot migration on plugin upgrade copies any prior selections (v0.1.x legacy key or v0.2.x-v0.3.x canonical-only key) onto the new prefixed key and removes the old options.
+* REST endpoint built with `rest_url()`. The Connection section endpoint URL is now generated via `rest_url('mcp/mcp-adapter-default-server')` instead of concatenating `home_url()` with a hardcoded `/wp-json` path, so it resolves correctly on installs with non-standard REST base configuration, sub-directory permalinks, and multisite blogs.
+* Display name updated to "Inhale: MCP Abilities by Respira" to make the author attribution clearer in wp-admin plugin lists. Slug `inhale-mcp-abilities` is unchanged.
+* `Contributors` field in readme.txt now lists the wp.org-owner username (`urbankidro`) instead of the brand string. The `Author` plugin header still reads "Respira" so the visible attribution on the wp.org directory page is unchanged.
+* Uninstall handler updated to remove the new primary key, the v0.4.0 migration flag, the canonical compat key, and every legacy key from v0.1.x and v0.2.x. Single-site and multisite sweep.
+
 = 0.3.2 =
 * Plugin Check (PCP) pass. Short description rewritten in standard English. Translators comment moved to sit directly above the `__()` call so PCP's i18n linter sees it. Inline `phpcs:ignore` annotations added on the read-only `$_GET['notice']` display path (post-redirect-get banner; no state change, value whitelisted) and on the `$_POST['abilities']` array read (sanitized per element below). Inhale_I18n drops the now-discouraged `load_plugin_textdomain()` call since wp.org auto-loads translations for plugins hosted in the Plugin Directory. Multisite-cleanup variables in `uninstall.php` prefixed (`$inhale_sites`, `$inhale_site_id`) to satisfy the PrefixAllGlobals rule.
 * Asset loader simplified. The `admin.min.css` / `admin.min.js` duplicates have been removed; the single `admin.css` / `admin.js` files are the only enqueued assets. The Plugin Directory prefers human-readable code; the admin page is small and loaded on one settings screen only, so a separate minified bundle wasn't pulling any real payload weight.
@@ -150,6 +159,9 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 * Adapter-managed abilities (`mcp-adapter/*` namespace) are surfaced as read-only "Managed" rows and skipped by the filter.
 
 == Upgrade Notice ==
+
+= 0.4.0 =
+Plugin Directory review fixes: prefix every identifier with `respira_inhale_*`, prefix the option key, use `rest_url()` for the Connection endpoint. A one-shot migration preserves prior selections. Safe to upgrade.
 
 = 0.3.2 =
 Plugin Check (PCP) pass: i18n + sanitization annotations, simplified asset loader, hardened export exclusions. No behavioral change. Safe to upgrade.
