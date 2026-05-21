@@ -790,6 +790,7 @@ class Respira_Inhale_Settings_Page {
 				<details class="disclosure">
 					<summary><?php esc_html_e( 'Connect with WP-CLI (STDIO)', 'inhale-mcp-abilities' ); ?></summary>
 					<div class="disclosure-body">
+						<p style="margin:0 0 6px;"><?php esc_html_e( 'STDIO transport requires WordPress and your MCP client to run on the same machine. For remote sites use the HTTP transport snippet below.', 'inhale-mcp-abilities' ); ?></p>
 						<p style="margin:0 0 6px;"><?php
 							echo wp_kses(
 								/* translators: %s: the filename `claude_desktop_config.json` wrapped in <code> tags. */
@@ -803,8 +804,9 @@ class Respira_Inhale_Settings_Page {
       "command": "wp",
       "args": [
         "--path=<?php echo esc_html( ABSPATH ); ?>",
-        "mcp",
-        "stdio",
+        "mcp-adapter",
+        "serve",
+        "--user=admin",
         "--server=mcp-adapter-default-server"
       ]
     }

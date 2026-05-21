@@ -4,7 +4,7 @@ Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.4.0
+Stable tag: 0.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,10 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 
 == Changelog ==
 
+= 0.4.1 =
+* WP-CLI snippet in the Connection section now uses the canonical `wp mcp-adapter serve` subcommand (was `wp mcp stdio`, which is not a registered subcommand and resulted in a "command not found" error when pasted into Claude Desktop). The snippet also includes `--user=admin` so the serve process runs with admin capabilities and can read the registered abilities.
+* New note above the WP-CLI snippet explains that STDIO transport requires WordPress and the MCP client to run on the same machine. Most real-world installs sit on a remote host, in which case the HTTP transport snippet below is the correct path.
+
 = 0.4.0 =
 * Plugin Directory review feedback. Three fixes addressing the initial review.
 * Generic prefixes replaced. Every constant, class, function, filter, nonce and CSS ID prefixed with `RESPIRA_INHALE_*` / `Respira_Inhale_*` / `respira_inhale_*` (was `INHALE_*` / `Inhale_*` / `inhale_*`). Class files renamed to `class-respira-inhale-*.php`. The new prefix is unique to this plugin and does not collide with the wider `respira_*` namespace used by the main Respira for WordPress plugin.
@@ -159,6 +163,9 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 * Adapter-managed abilities (`mcp-adapter/*` namespace) are surfaced as read-only "Managed" rows and skipped by the filter.
 
 == Upgrade Notice ==
+
+= 0.4.1 =
+Fixes the WP-CLI snippet in the Connection section. Pre-0.4.1 the snippet pointed at `wp mcp stdio`, which is not a registered subcommand and resulted in a "command not found" error. Now uses `wp mcp-adapter serve` with `--user=admin`. Adds a note that STDIO transport is local-only; remote sites should use HTTP. No behavioral change to abilities or the settings page itself. Safe to upgrade.
 
 = 0.4.0 =
 Plugin Directory review fixes: prefix every identifier with `respira_inhale_*`, prefix the option key, use `rest_url()` for the Connection endpoint. A one-shot migration preserves prior selections. Safe to upgrade.
