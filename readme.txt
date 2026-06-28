@@ -41,7 +41,7 @@ Once installed and activated, you'll find a new page at Settings &gt; Inhale: MC
 
 = Browse the abilities directory =
 
-Respira maintains a public, regularly-refreshed directory of WordPress plugins that register abilities through the Abilities API, including Respira's own and the Respira WooCommerce add-on. Browse it at https://www.respira.press/abilities?utm_source=inhale&utm_medium=wp-org&utm_campaign=readme-abilities-directory to see what each plugin exposes to AI agents before you decide which abilities to inhale.
+Respira maintains a public, regularly-refreshed directory of WordPress plugins that register abilities through the Abilities API, including Respira's own and the Respira WooCommerce add-on. Browse it at [respira.press/abilities](https://www.respira.press/abilities?utm_source=inhale&utm_medium=wp-org&utm_campaign=readme-abilities-directory) to see what each plugin exposes to AI agents before you decide which abilities to inhale.
 
 = About MCP =
 
@@ -49,7 +49,7 @@ Model Context Protocol (MCP) is an open specification originally developed by An
 
 = About Respira =
 
-The Inhale: MCP Abilities plugin is built and maintained by Respira, which ships AI infrastructure for WordPress. The main product is Respira for WordPress, a safety layer that registers 130+ abilities across 16 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 10 more) with snapshot-before-write protection, render validation and one-click rollback. Inhale: MCP Abilities is a free utility offered to the WordPress community. Learn more at https://respira.press/inhale?utm_source=inhale&utm_medium=wp-org&utm_campaign=readme-description.
+The Inhale: MCP Abilities plugin is built and maintained by Respira, which ships AI infrastructure for WordPress. The main product is Respira for WordPress, a safety layer that registers 130+ abilities across 16 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 10 more) with snapshot-before-write protection, render validation and one-click rollback. Inhale: MCP Abilities is a free utility offered to the WordPress community. Learn more at [respira.press/inhale](https://respira.press/inhale?utm_source=inhale&utm_medium=wp-org&utm_campaign=readme-description).
 
 == Installation ==
 
