@@ -171,7 +171,7 @@ msgid "Model Context Protocol (MCP) is an open specification originally develope
 msgstr ""
 
 #. translators: 1: link to Respira for WordPress, 2: link to respira.press.
-msgid "Inhale is built by Respira. Respira ships AI infrastructure for WordPress, including %1$s, the safety layer for AI-driven edits across 12 page builders. Learn more at %2$s."
+msgid "Inhale is built by Respira. Respira ships AI infrastructure for WordPress, including %1$s, the safety layer for AI-driven edits across 16 page builders. Learn more at %2$s."
 msgstr ""
 
 msgid "no annotations"

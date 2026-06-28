@@ -595,6 +595,17 @@ class Respira_Inhale_Settings_Page {
 							<path d="M9 2L5 6"/>
 						</svg>
 					</a>
+					<a class="docs-link"
+						href="https://www.respira.press/abilities?utm_source=inhale&amp;utm_medium=wp-admin&amp;utm_campaign=settings-abilities-directory"
+						target="_blank"
+						rel="noopener noreferrer">
+						<?php esc_html_e( 'Abilities directory', 'inhale-mcp-abilities' ); ?>
+						<svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<path d="M4 2H2v7h7V7"/>
+							<path d="M6 2h3v3"/>
+							<path d="M9 2L5 6"/>
+						</svg>
+					</a>
 					<button type="button"
 						class="theme-toggle"
 						id="inhaleThemeToggle"
@@ -866,10 +877,11 @@ class Respira_Inhale_Settings_Page {
 			<p class="muted inhale-respira-footer"><?php
 				echo wp_kses(
 					sprintf(
-						/* translators: 1: link to Respira for WordPress, 2: link to respira.press. */
-						__( 'The Inhale: MCP Abilities plugin is built by Respira, which ships AI infrastructure for WordPress. The main product is %1$s, a safety layer that registers 130+ abilities across 12 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 6 more) with snapshot-before-write protection, render validation and one-click rollback. Learn more at %2$s.', 'inhale-mcp-abilities' ),
+						/* translators: 1: link to Respira for WordPress, 2: link to respira.press, 3: link to the abilities directory. */
+						__( 'The Inhale: MCP Abilities plugin is built by Respira, which ships AI infrastructure for WordPress. The main product is %1$s, a safety layer that registers 130+ abilities across 16 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 10 more) with snapshot-before-write protection, render validation and one-click rollback. Learn more at %2$s, or browse the public abilities directory at %3$s.', 'inhale-mcp-abilities' ),
 						'<a href="https://respira.press/?utm_source=inhale&utm_medium=wp-admin&utm_campaign=settings-footer-product" target="_blank" rel="noopener noreferrer">Respira for WordPress</a>',
-						'<a href="https://respira.press/?utm_source=inhale&utm_medium=wp-admin&utm_campaign=settings-footer-cta" target="_blank" rel="noopener noreferrer">respira.press</a>'
+						'<a href="https://respira.press/?utm_source=inhale&utm_medium=wp-admin&utm_campaign=settings-footer-cta" target="_blank" rel="noopener noreferrer">respira.press</a>',
+						'<a href="https://www.respira.press/abilities?utm_source=inhale&utm_medium=wp-admin&utm_campaign=settings-footer-abilities-directory" target="_blank" rel="noopener noreferrer">respira.press/abilities</a>'
 					),
 					array(
 						'a' => array(

@@ -4,7 +4,7 @@ Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.4.2
+Stable tag: 0.4.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,13 +39,17 @@ Once installed and activated, you'll find a new page at Settings &gt; Inhale: MC
 * PHP 7.4 or later
 * The official WordPress MCP Adapter plugin installed and active
 
+= Browse the abilities directory =
+
+Respira maintains a public, regularly-refreshed directory of WordPress plugins that register abilities through the Abilities API, including Respira's own and the Respira WooCommerce add-on. Browse it at https://www.respira.press/abilities?utm_source=inhale&utm_medium=wp-org&utm_campaign=readme-abilities-directory to see what each plugin exposes to AI agents before you decide which abilities to inhale.
+
 = About MCP =
 
 Model Context Protocol (MCP) is an open specification originally developed by Anthropic. Inhale: MCP Abilities is a third-party plugin and is not affiliated with, endorsed by, or sponsored by Anthropic. Respira is an independent company.
 
 = About Respira =
 
-The Inhale: MCP Abilities plugin is built and maintained by Respira, which ships AI infrastructure for WordPress. The main product is Respira for WordPress, a safety layer that registers 130+ abilities across 12 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 6 more) with snapshot-before-write protection, render validation and one-click rollback. Inhale: MCP Abilities is a free utility offered to the WordPress community. Learn more at https://respira.press/inhale?utm_source=inhale&utm_medium=wp-org&utm_campaign=readme-description.
+The Inhale: MCP Abilities plugin is built and maintained by Respira, which ships AI infrastructure for WordPress. The main product is Respira for WordPress, a safety layer that registers 130+ abilities across 16 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 10 more) with snapshot-before-write protection, render validation and one-click rollback. Inhale: MCP Abilities is a free utility offered to the WordPress community. Learn more at https://respira.press/inhale?utm_source=inhale&utm_medium=wp-org&utm_campaign=readme-description.
 
 == Installation ==
 
@@ -73,7 +77,7 @@ The Inhale: MCP Abilities plugin is conservative by default: no abilities are ex
 
 = What's the relationship between Inhale: MCP Abilities and Respira? =
 
-Inhale: MCP Abilities is a free utility built and maintained by Respira. Respira's main product is Respira for WordPress, a safety layer for AI-driven edits across 12 page builders. The two products are separate. You can use the Inhale: MCP Abilities plugin without ever using Respira for WordPress.
+Inhale: MCP Abilities is a free utility built and maintained by Respira. Respira's main product is Respira for WordPress, a safety layer for AI-driven edits across 16 page builders. The two products are separate. You can use the Inhale: MCP Abilities plugin without ever using Respira for WordPress.
 
 = Will write operations work through MCP? =
 
@@ -87,6 +91,10 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 4. Dark mode view: the entire wp-admin content column paints dark together with the Inhale page, the wordmark and subtitle render with brand-spec emerald (#86efac) typography, and the abilities table inherits the dark surface tokens.
 
 == Changelog ==
+
+= 0.4.3 =
+* New "Browse the abilities directory" section in the readme and an "Abilities directory" link in the settings page header and footer, both pointing to https://www.respira.press/abilities. The directory is a public, regularly-refreshed list of WordPress plugins that register abilities through the Abilities API (including Respira's own and the Respira WooCommerce add-on), so site owners can see what each plugin exposes to AI agents. Same no-telemetry stance as before: the plugin does not call out at runtime, the link only matters when a human clicks it.
+* Description copy: Respira for WordPress now covers 16 page builders (was 12). Updated across the readme, settings page footer, and translation template.
 
 = 0.4.2 =
 * Every outbound link from the settings page and the readme to respira.press now carries `utm_source=inhale` plus a `utm_medium` and `utm_campaign` that name the specific click location (settings-header, settings-docs, settings-footer, readme-description). This lets Respira measure how many sign-ups and how much revenue on respira.press are attributable to the Inhale plugin as a referral channel, without any change to the destination pages or any extra plugin code. The plugin itself does not call out, fetch, or send anything to respira.press at runtime; the UTM tags only matter when a human clicks a link.
@@ -166,6 +174,9 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 * Adapter-managed abilities (`mcp-adapter/*` namespace) are surfaced as read-only "Managed" rows and skipped by the filter.
 
 == Upgrade Notice ==
+
+= 0.4.3 =
+Adds a link to the public Respira abilities directory (https://www.respira.press/abilities) in the readme and settings page, so you can browse which plugins register abilities before choosing what to inhale. No behavioral change, no telemetry. Safe to upgrade.
 
 = 0.4.2 =
 Adds UTM tags to outbound respira.press links so the plugin shows up as an attribution source in Respira's acquisition dashboard. Same destination pages, no telemetry from the plugin itself. Safe to upgrade.

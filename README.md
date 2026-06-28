@@ -42,7 +42,7 @@ Once active, the page lives at **Settings → Inhale: MCP Abilities**.
 
 ## About Respira
 
-The Inhale: MCP Abilities plugin is built by Respira, which ships AI infrastructure for WordPress. The main product is [Respira for WordPress](https://respira.press), a safety layer that registers 130+ abilities across 12 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 6 more) with snapshot-before-write protection, render validation and one-click rollback.
+The Inhale: MCP Abilities plugin is built by Respira, which ships AI infrastructure for WordPress. The main product is [Respira for WordPress](https://respira.press), a safety layer that registers 130+ abilities across 16 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 10 more) with snapshot-before-write protection, render validation and one-click rollback.
 
 Inhale: MCP Abilities is a free utility offered to the WordPress community. The two products are separate; Inhale: MCP Abilities works on its own and is not affiliated with Respira for WordPress beyond authorship.
 
