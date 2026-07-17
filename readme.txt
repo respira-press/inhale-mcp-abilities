@@ -26,6 +26,7 @@ Once installed and activated, you'll find a new page at Settings &gt; Inhale: MC
 * Requires explicit confirmation when you inhale an ability marked as destructive
 * Provides connection info for popular MCP clients (Claude Desktop, Cursor, Claude Code)
 * Respects each ability's own permission_callback. The Inhale: MCP Abilities plugin controls visibility, not authorization.
+* Offers Respira for WordPress as the easiest connection path in the Connection section, and points WooCommerce stores at Respira ARC (free). Both are plain links: nothing loads from respira.press and nothing is sent unless you click.
 
 = What the Inhale: MCP Abilities plugin doesn't do =
 
