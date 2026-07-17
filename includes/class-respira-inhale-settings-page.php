@@ -650,6 +650,14 @@ class Respira_Inhale_Settings_Page {
 				</aside>
 			<?php endif; ?>
 
+			<?php if ( class_exists( 'WooCommerce' ) && ! defined( 'RESPIRA_ARC_VERSION' ) && ! defined( 'RESPIRA_WOO_VERSION' ) ) : ?>
+				<aside class="inhale-sources-card" aria-labelledby="inhale-arc-h">
+					<h2 id="inhale-arc-h" class="inhale-sources-card__title"><?php esc_html_e( 'Free for this store: Respira ARC', 'inhale-mcp-abilities' ); ?></h2>
+					<p style="margin:8px 0 10px; font-size:13px; line-height:1.5;"><?php esc_html_e( 'Inhale exposes your plugins\' abilities to MCP. Respira ARC, the free companion for WooCommerce, makes the store itself readable to AI shopping assistants: product feeds in six formats, a store llms.txt, an AI-readiness score, and attributed cart links. No accounts, no product caps, runs entirely on your server.', 'inhale-mcp-abilities' ); ?></p>
+					<a href="https://respira.press/arc?utm_source=inhale&amp;utm_medium=wp-admin&amp;utm_campaign=arc-promo" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get Respira ARC free', 'inhale-mcp-abilities' ); ?> &rarr;</a>
+				</aside>
+			<?php endif; ?>
+
 			<form method="post" action="" id="inhaleAbilitiesForm">
 				<?php wp_nonce_field( self::NONCE_ACTION ); ?>
 				<input type="hidden" name="page" value="<?php echo esc_attr( self::MENU_SLUG ); ?>" />

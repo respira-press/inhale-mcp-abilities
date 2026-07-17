@@ -4,7 +4,7 @@ Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.4.3
+Stable tag: 0.4.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,6 +91,9 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 4. Dark mode view: the entire wp-admin content column paints dark together with the Inhale page, the wordmark and subtitle render with brand-spec emerald (#86efac) typography, and the abilities table inherits the dark surface tokens.
 
 == Changelog ==
+
+= 0.4.4 =
+* WooCommerce stores get a pointer to Respira ARC on the settings page: the free companion plugin that makes the store itself readable to AI shopping assistants (product feeds in six formats, a store llms.txt, an AI-readiness score, attributed cart links). The card only appears when WooCommerce is active and neither ARC nor the Respira WooCommerce Add-on is installed, and it disappears once either is. Same no-telemetry stance: the plugin does not call out at runtime, the link only matters when a human clicks it.
 
 = 0.4.3 =
 * New "Browse the abilities directory" section in the readme and an "Abilities directory" link in the settings page header and footer, both pointing to https://www.respira.press/abilities. The directory is a public, regularly-refreshed list of WordPress plugins that register abilities through the Abilities API (including Respira's own and the Respira WooCommerce add-on), so site owners can see what each plugin exposes to AI agents. Same no-telemetry stance as before: the plugin does not call out at runtime, the link only matters when a human clicks it.
