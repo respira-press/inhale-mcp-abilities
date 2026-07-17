@@ -650,12 +650,19 @@ class Respira_Inhale_Settings_Page {
 				</aside>
 			<?php endif; ?>
 
-			<?php if ( class_exists( 'WooCommerce' ) && ! defined( 'RESPIRA_ARC_VERSION' ) && ! defined( 'RESPIRA_WOO_VERSION' ) ) : ?>
-				<aside class="inhale-sources-card" aria-labelledby="inhale-arc-h">
-					<h2 id="inhale-arc-h" class="inhale-sources-card__title"><?php esc_html_e( 'Free for this store: Respira ARC', 'inhale-mcp-abilities' ); ?></h2>
-					<p style="margin:8px 0 10px; font-size:13px; line-height:1.5;"><?php esc_html_e( 'Inhale exposes your plugins\' abilities to MCP. Respira ARC, the free companion for WooCommerce, makes the store itself readable to AI shopping assistants: product feeds in six formats, a store llms.txt, an AI-readiness score, and attributed cart links. No accounts, no product caps, runs entirely on your server.', 'inhale-mcp-abilities' ); ?></p>
-					<a href="https://respira.press/arc?utm_source=inhale&amp;utm_medium=wp-admin&amp;utm_campaign=arc-promo" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get Respira ARC free', 'inhale-mcp-abilities' ); ?> &rarr;</a>
-				</aside>
+			<?php if ( class_exists( 'WooCommerce' ) ) : ?>
+				<?php if ( defined( 'RESPIRA_ARC_VERSION' ) || defined( 'RESPIRA_WOO_VERSION' ) ) : ?>
+					<aside class="inhale-sources-card" aria-labelledby="inhale-arc-h">
+						<h2 id="inhale-arc-h" class="inhale-sources-card__title"><?php esc_html_e( 'Respira ARC is active', 'inhale-mcp-abilities' ); ?></h2>
+						<p style="margin:8px 0 0; font-size:13px; line-height:1.5;"><?php esc_html_e( 'This store is already readable to AI shopping assistants: feeds, llms.txt, readiness score and cart links are handled under WooCommerce, Respira ARC.', 'inhale-mcp-abilities' ); ?></p>
+					</aside>
+				<?php else : ?>
+					<aside class="inhale-sources-card" aria-labelledby="inhale-arc-h">
+						<h2 id="inhale-arc-h" class="inhale-sources-card__title"><?php esc_html_e( 'Free for this store: Respira ARC', 'inhale-mcp-abilities' ); ?></h2>
+						<p style="margin:8px 0 10px; font-size:13px; line-height:1.5;"><?php esc_html_e( 'Inhale exposes your plugins\' abilities to MCP. Respira ARC, the free companion for WooCommerce, makes the store itself readable to AI shopping assistants: product feeds in six formats, a store llms.txt, an AI-readiness score, and attributed cart links. No accounts, no product caps, runs entirely on your server.', 'inhale-mcp-abilities' ); ?></p>
+						<a href="https://respira.press/arc?utm_source=inhale&amp;utm_medium=wp-admin&amp;utm_campaign=arc-promo" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get Respira ARC free', 'inhale-mcp-abilities' ); ?> &rarr;</a>
+					</aside>
+				<?php endif; ?>
 			<?php endif; ?>
 
 			<form method="post" action="" id="inhaleAbilitiesForm">
@@ -805,6 +812,20 @@ class Respira_Inhale_Settings_Page {
 						<span class="copy-btn-label"><?php esc_html_e( 'Copy', 'inhale-mcp-abilities' ); ?></span>
 					</button>
 				</div>
+
+				<details class="disclosure">
+					<summary><?php esc_html_e( 'Connect with Respira for WordPress (easiest)', 'inhale-mcp-abilities' ); ?></summary>
+					<div class="disclosure-body">
+						<p style="margin:0 0 6px;"><?php esc_html_e( 'Respira for WordPress connects this site to Claude, ChatGPT, Cursor or Codex in two clicks from the respira.press dashboard: no application passwords, no config files, no terminal. Its native connector carries these abilities alongside its own tools.', 'inhale-mcp-abilities' ); ?></p>
+						<ul style="margin:0 0 8px; padding-left:18px; list-style:disc;">
+							<li><?php esc_html_e( 'Duplicate-before-edit safety: the AI edits a copy, you approve, snapshots keep 90 days of rollback', 'inhale-mcp-abilities' ); ?></li>
+							<li><?php esc_html_e( 'Element-level editing across 16 page builders, not just raw content', 'inhale-mcp-abilities' ); ?></li>
+							<li><?php esc_html_e( '200+ tools included in every plan: SEO, accessibility and performance analysis, bulk operations, media, menus', 'inhale-mcp-abilities' ); ?></li>
+							<li><?php esc_html_e( '7-day free trial, no card', 'inhale-mcp-abilities' ); ?></li>
+						</ul>
+						<p style="margin:0;"><a href="https://respira.press/?utm_source=inhale&amp;utm_medium=wp-admin&amp;utm_campaign=connection-respira" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Connect with Respira', 'inhale-mcp-abilities' ); ?> &rarr;</a></p>
+					</div>
+				</details>
 
 				<details class="disclosure">
 					<summary><?php esc_html_e( 'Connect with WP-CLI (STDIO)', 'inhale-mcp-abilities' ); ?></summary>

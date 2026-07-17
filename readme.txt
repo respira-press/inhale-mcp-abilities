@@ -4,7 +4,7 @@ Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.4.4
+Stable tag: 0.4.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,6 +91,10 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 4. Dark mode view: the entire wp-admin content column paints dark together with the Inhale page, the wordmark and subtitle render with brand-spec emerald (#86efac) typography, and the abilities table inherits the dark surface tokens.
 
 == Changelog ==
+
+= 0.4.5 =
+* "Connect with Respira for WordPress" added as the first option in the Connection section: two-click connect from the respira.press dashboard, duplicate-before-edit safety with 90-day rollback, element-level editing across 16 builders, 200+ tools in every plan, 7-day trial without a card. Same rule as everything else here: no runtime calls, the link only matters when a human clicks it.
+* When Respira ARC (or the WooCommerce Add-on) is already active, the ARC card now confirms the store is covered instead of disappearing silently.
 
 = 0.4.4 =
 * WooCommerce stores get a pointer to Respira ARC on the settings page: the free companion plugin that makes the store itself readable to AI shopping assistants (product feeds in six formats, a store llms.txt, an AI-readiness score, attributed cart links). The card only appears when WooCommerce is active and neither ARC nor the Respira WooCommerce Add-on is installed, and it disappears once either is. Same no-telemetry stance: the plugin does not call out at runtime, the link only matters when a human clicks it.
