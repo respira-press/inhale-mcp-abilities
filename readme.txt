@@ -4,7 +4,7 @@ Tags: mcp, ai, abilities, model context protocol, ai infrastructure
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.4.5
+Stable tag: 0.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -92,6 +92,12 @@ Yes, if you inhale abilities that perform writes. Whether a particular ability p
 4. Dark mode view: the entire wp-admin content column paints dark together with the Inhale page, the wordmark and subtitle render with brand-spec emerald (#86efac) typography, and the abilities table inherits the dark surface tokens.
 
 == Changelog ==
+
+= 0.5.0 =
+* WordPress 7.1 compatibility, and it matters more than a compatibility note usually does. 7.1 adds a unified `meta.public` flag for abilities, and integrations resolve exposure as `$meta[ $channel ]['public'] ?? $meta['public'] ?? false`. Until now this plugin only ever marked the abilities you inhaled, and left everything else alone. On 7.1 "left alone" stops meaning "not exposed": an ability you did not inhale, whose author set `public => true`, would fall through to the author's value and be exposed to MCP clients anyway. That inverts the promise this plugin makes, which is that you decide what is reachable, not the plugin author.
+* Every ability now carries an explicit decision, true or false, on the MCP channel. Core's resolution preserves an explicit false and only falls through on null, so your choice wins. Nothing changes on WordPress 6.8, 6.9 or 7.0, where the unified flag does not exist yet.
+* Your selection still overrides an author's general opt-out in the other direction too: inhale an ability whose author set `public => false` and it is exposed, because you asked for it specifically.
+* An author's own `meta.public` is never rewritten. This plugin sets its channel value and touches nothing else in someone else's registration.
 
 = 0.4.5 =
 * "Connect with Respira for WordPress" added as the first option in the Connection section: two-click connect from the respira.press dashboard, duplicate-before-edit safety with 90-day rollback, element-level editing across 16 builders, 200+ tools in every plan, 7-day trial without a card. Same rule as everything else here: no runtime calls, the link only matters when a human clicks it.

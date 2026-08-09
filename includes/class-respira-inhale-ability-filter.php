@@ -67,15 +67,36 @@ class Respira_Inhale_Ability_Filter {
 			return $args;
 		}
 
-		if ( in_array( $ability_name, $exposed, true ) ) {
-			if ( ! isset( $args['meta'] ) || ! is_array( $args['meta'] ) ) {
-				$args['meta'] = array();
-			}
-			if ( ! isset( $args['meta']['mcp'] ) || ! is_array( $args['meta']['mcp'] ) ) {
-				$args['meta']['mcp'] = array();
-			}
-			$args['meta']['mcp']['public'] = true;
+		if ( ! isset( $args['meta'] ) || ! is_array( $args['meta'] ) ) {
+			$args['meta'] = array();
 		}
+		if ( ! isset( $args['meta']['mcp'] ) || ! is_array( $args['meta']['mcp'] ) ) {
+			$args['meta']['mcp'] = array();
+		}
+
+		// Decide in BOTH directions, which is new as of WordPress 7.1.
+		//
+		// This filter used to set mcp.public = true on an inhaled ability and
+		// leave everything else untouched. That was correct while `meta.mcp`
+		// was the only thing an MCP client read. WordPress 7.1 adds a unified
+		// `meta.public` flag, and integrations resolve exposure as:
+		//
+		//     $meta[ $channel ]['public'] ?? $meta['public'] ?? false
+		//
+		// So an ability the administrator did NOT inhale, whose author set
+		// `public => true`, now falls through to the author's value and gets
+		// exposed. That silently inverts the promise this plugin makes: the
+		// administrator chooses what is reachable, not the plugin author.
+		//
+		// Writing an explicit false closes it. The core resolution uses
+		// null-coalescing, so an explicit false is preserved and is not
+		// treated as a missing value; only null falls through. The dev note
+		// asks integrations not to override an explicit channel opt-out
+		// because `public` is true, and this IS that channel opt-out, set on
+		// the administrator's behalf.
+		//
+		// @see https://make.wordpress.org/core/2026/08/04/a-unified-public-exposure-flag-for-abilities-in-wordpress-7-1/
+		$args['meta']['mcp']['public'] = in_array( $ability_name, $exposed, true );
 
 		return $args;
 	}
