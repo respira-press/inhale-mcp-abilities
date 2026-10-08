@@ -12,6 +12,8 @@ See every ability your plugins give AI agents over MCP, and choose which ones Cl
 
 == Description ==
 
+https://www.youtube.com/watch?v=9xkrJ2rJ8DM
+
 Inhale: MCP Abilities Manager shows you, on one screen, every action your WordPress site offers to AI agents through the Model Context Protocol (MCP), and lets you decide which of them an AI client may use.
 
 **Why this matters now.** Since WordPress 6.9, plugins register "abilities": small, named actions such as "get site info", "create a post" or "update a product". The WordPress MCP Adapter turns those abilities into tools that Claude, ChatGPT, Cursor and other AI clients can call. Since adapter 0.6 and WordPress 7.1, a plugin that marks its ability as public makes it reachable by AI clients without the site owner choosing. And you may already run the adapter without knowing it: several popular SEO, page builder, form and store plugins load their own copy.
