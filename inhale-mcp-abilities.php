@@ -3,7 +3,7 @@
  * Plugin Name: Inhale: MCP Abilities Manager by Respira
  * Plugin URI: https://respira.press/inhale
  * Description: See every ability your plugins give AI agents over MCP, and choose which ones Claude, ChatGPT and other AI clients can use. No code. Built by Respira.
- * Version: 0.6.0
+ * Version: 0.7.0
  * Requires at least: 6.8
  * Requires PHP: 7.4
  * Author: Respira
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // this plugin and does not collide with the wider `respira_` prefix used
 // by the main Respira for WordPress plugin.
 if ( ! defined( 'RESPIRA_INHALE_VERSION' ) ) {
-	define( 'RESPIRA_INHALE_VERSION', '0.6.0' );
+	define( 'RESPIRA_INHALE_VERSION', '0.7.0' );
 }
 if ( ! defined( 'RESPIRA_INHALE_PLUGIN_FILE' ) ) {
 	define( 'RESPIRA_INHALE_PLUGIN_FILE', __FILE__ );
@@ -129,6 +129,7 @@ require_once RESPIRA_INHALE_PLUGIN_DIR . 'includes/class-respira-inhale-i18n.php
 require_once RESPIRA_INHALE_PLUGIN_DIR . 'includes/class-respira-inhale-ability-filter.php';
 require_once RESPIRA_INHALE_PLUGIN_DIR . 'includes/class-respira-inhale-settings-page.php';
 require_once RESPIRA_INHALE_PLUGIN_DIR . 'includes/class-respira-inhale-assets.php';
+require_once RESPIRA_INHALE_PLUGIN_DIR . 'includes/class-respira-inhale-free-connect.php';
 require_once RESPIRA_INHALE_PLUGIN_DIR . 'includes/class-respira-inhale-plugin.php';
 
 add_action(

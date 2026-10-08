@@ -637,6 +637,10 @@ class Respira_Inhale_Settings_Page {
 
 			<?php $this->render_status_card( $abilities, $exposed, $endpoint ); ?>
 
+			<?php if ( class_exists( 'Respira_Inhale_Free_Connect' ) ) : ?>
+				<div class="inhale-free-connect"><?php Respira_Inhale_Free_Connect::render_card(); ?></div>
+			<?php endif; ?>
+
 			<?php if ( ! empty( $source_summary ) ) : ?>
 				<aside class="inhale-sources-card" aria-labelledby="inhale-sources-h">
 					<h2 id="inhale-sources-h" class="inhale-sources-card__title">

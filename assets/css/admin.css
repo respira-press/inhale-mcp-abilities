@@ -1283,3 +1283,5 @@ body.inhale-theme-dark #wpfooter a {
 @media (max-width: 782px) {
 	.inhale-wrap .inhale-status__row { grid-template-columns: 1fr; gap: 2px; }
 }
+
+.inhale-free-connect { margin: 16px 0; }

@@ -4,7 +4,7 @@ Tags: mcp, mcp server, claude, chatgpt, abilities
 Requires at least: 6.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.6.0
+Stable tag: 0.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,7 +31,17 @@ Inhale puts that decision back with you. Nothing changes until you choose.
 
 * It does not run an MCP server or handle sign-in. The WordPress MCP Adapter does that, whichever plugin loads it.
 * It does not register abilities of its own or change what an ability does. Every ability still runs its own permission checks for the signed-in user.
-* It does not phone home, collect telemetry or load anything from outside your site. The links on the settings page only matter when you click them.
+* It does not phone home, collect telemetry or load anything from outside your site. Nothing is sent anywhere unless you connect a free Respira account for the site check below.
+
+= Free with a Respira account: a weekly vulnerability check =
+
+Connect a free respira.press account from the Inhale screen, and Inhale checks WordPress core, every installed plugin and every installed theme against more than 40,000 known vulnerabilities from the Wordfence Intelligence database, once a week and whenever you click Check now.
+
+* The Inhale screen shows which plugins or themes have known vulnerabilities, how severe the worst one is, and the version that fixes them.
+* Your free Respira dashboard lists every record with its CVE and a link to Wordfence, for every site you connect.
+* The same free account includes an accessibility scan of any page on the site.
+
+No card and no trial. Inhale works the same whether you connect or not, and Disconnect removes the connection on both ends. What is sent, and when, is listed under External services below.
 
 = Requirements =
 
@@ -92,14 +102,37 @@ Yes. The WordPress AI plugin adds AI features inside wp-admin; Inhale controls w
 
 Respira builds and maintains Inhale for free. Respira for WordPress includes the same controls, so you do not need both; Inhale steps aside automatically when Respira is active.
 
+= Can Inhale check my site for vulnerable plugins? =
+
+Yes, with a free Respira account. Click Connect on the Inhale screen and approve on respira.press. Inhale then checks WordPress, your plugins and your themes against the Wordfence Intelligence vulnerability database every week and shows what to update. Nothing is sent before you connect.
+
+== External services ==
+
+Inhale connects to one external service, and only after an administrator chooses to: Respira (respira.press), for the free site check.
+
+* When: when an administrator clicks "Connect a free account" and approves on respira.press, then once a week, and whenever an administrator clicks "Check now". "Disconnect" sends one last request that deletes the connection.
+* What is sent: the site address, the WordPress version, and the folder name, name and version of each installed plugin and theme, with the site's connection token. No content, no users, no personal data from the site.
+* What it is for: matching those versions against known vulnerabilities and showing the result on the Inhale screen and in your Respira dashboard.
+* Terms: https://www.respira.press/terms
+* Privacy policy: https://www.respira.press/privacy
+
+Vulnerability data comes from the Wordfence Intelligence database, copyright Defiant Inc., used under its licence; each record links to Wordfence.
+
+Before you connect, Inhale makes no external requests. Links on the settings page open respira.press or wordpress.org only when you click them.
+
 == Screenshots ==
 
-1. The Inhale: MCP Abilities settings page in light mode: page header with the "by respira.press" subtitle, sources card listing every plugin that registers abilities, filter tabs (All, Inhaled, Read-only, Destructive, Unannotated), search, and the wp-admin native abilities list table with iOS-style toggle switches in the Status column.
-2. The abilities list table close-up: row checkboxes for bulk selection, toggles per row (green when inhaled, grey when not), Source column showing the registering plugin, descriptions sourced from each ability's declared meta, and annotation badges (Read-only, Destructive, Idempotent).
-3. The Connection section: the endpoint with copy-to-clipboard, and copy-paste setups for Claude Desktop, Cursor, VS Code, Claude Code and WP-CLI.
-4. Dark mode view: the entire wp-admin content column paints dark together with the Inhale page, the wordmark and subtitle render with brand-spec emerald (#86efac) typography, and the abilities table inherits the dark surface tokens.
+1. Every ability on the site, from every plugin, with what it does, who registered it and its safety hints. Switch each one on or off for MCP.
+2. Your MCP setup at a glance, and the free site check: which plugins have known vulnerabilities and the version that fixes them.
+3. Working connection steps for Claude Desktop, Claude Code, Cursor, VS Code and WP-CLI.
+4. The same screen in dark mode.
 
 == Changelog ==
+
+= 0.7.0 =
+* Added: a free site check. Connect a free Respira account and Inhale checks WordPress, your plugins and your themes against 40,000+ known vulnerabilities from Wordfence Intelligence, every week, and shows what to update. Opt in, off until you connect, listed under External services.
+* Added: a link to the free accessibility scan that comes with the same account.
+* Changed: uninstalling Inhale also removes the site check connection, unless Respira ARC is still installed and uses it.
 
 = 0.6.0 =
 * Added: a "Your MCP setup" card at the top of the settings page: whether an MCP Adapter is running, its version and which plugin loads it, the endpoint, whether Application Passwords work on this site, and how many abilities are exposed.
@@ -120,6 +153,9 @@ Respira builds and maintains Inhale for free. Respira for WordPress includes the
 The full history is on [GitHub](https://github.com/respira-press/inhale-mcp-abilities/commits/main).
 
 == Upgrade Notice ==
+
+= 0.7.0 =
+Adds an optional free weekly vulnerability check of your plugins and themes. Nothing is sent unless you connect.
 
 = 0.6.0 =
 Adds a status card showing whether an MCP Adapter runs and which plugin loads it, and fixes the connection steps.

@@ -53,3 +53,23 @@ if ( function_exists( 'is_multisite' ) && is_multisite() && function_exists( 'ge
 
 // The rating request's per-user dismissal.
 delete_metadata( 'user', 0, 'respira_inhale_review_dismissed', '', true );
+
+// The free Respira account connection is shared with Respira ARC. Leave it in
+// place while ARC is installed; otherwise revoke the token on respira.press and
+// remove it here.
+if ( ! file_exists( WP_PLUGIN_DIR . '/respira-arc/respira-arc.php' ) ) {
+	$respira_inhale_conn = get_option( 'respira_free_connection' );
+	if ( is_array( $respira_inhale_conn ) && ! empty( $respira_inhale_conn['token'] ) ) {
+		wp_remote_post(
+			'https://www.respira.press/api/v1/free-connect/disconnect',
+			array(
+				'timeout'  => 5,
+				'blocking' => false,
+				'headers'  => array( 'Authorization' => 'Bearer ' . $respira_inhale_conn['token'] ),
+			)
+		);
+	}
+	delete_option( 'respira_free_connection' );
+	delete_option( 'respira_free_site_check' );
+	wp_clear_scheduled_hook( 'respira_free_site_check' );
+}
