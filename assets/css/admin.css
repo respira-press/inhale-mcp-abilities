@@ -1269,3 +1269,17 @@ body.inhale-theme-dark #wpfooter a {
 	.inhale-wrap .wp-list-table .ability-desc { white-space: normal; }
 	.inhale-wrap .source-name { white-space: normal; }
 }
+
+/* 0.6.0: "Your MCP setup" status card. Same surface as the sources card. */
+.inhale-wrap .inhale-status { margin: 0; display: grid; gap: 6px; }
+.inhale-wrap .inhale-status__row { display: grid; grid-template-columns: 170px 1fr; gap: 12px; align-items: baseline; }
+.inhale-wrap .inhale-status dt { font-size: 12.5px; font-weight: 600; color: var(--fg-muted); margin: 0; }
+.inhale-wrap .inhale-status dd { margin: 0; font-size: 13px; color: var(--fg); overflow-wrap: anywhere; }
+.inhale-wrap .inhale-status dd code { font-size: 12px; }
+.inhale-wrap .inhale-status__ok { color: var(--accent-text); font-weight: 600; }
+.inhale-wrap .inhale-status__warn { color: var(--fg); font-weight: 600; }
+.inhale-wrap .inhale-status__note { color: var(--fg-muted); }
+.inhale-wrap .inhale-status a { margin-left: 6px; }
+@media (max-width: 782px) {
+	.inhale-wrap .inhale-status__row { grid-template-columns: 1fr; gap: 2px; }
+}

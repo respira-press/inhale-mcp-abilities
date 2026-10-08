@@ -31,6 +31,7 @@ delete_option( 'inhale_mcp_abilities_public_abilities' );
 
 // Legacy v0.2.0 migration flag, superseded by the v0.4.0 flag above.
 delete_option( 'inhale_option_migrated_v020' );
+delete_option( 'respira_inhale_first_saved_at' );
 
 // Multisite: clean the same options on every blog if the plugin was
 // network-installed.
@@ -44,7 +45,11 @@ if ( function_exists( 'is_multisite' ) && is_multisite() && function_exists( 'ge
 			delete_option( 'mcp_adapter_public_abilities' );
 			delete_option( 'inhale_mcp_abilities_public_abilities' );
 			delete_option( 'inhale_option_migrated_v020' );
+			delete_option( 'respira_inhale_first_saved_at' );
 			restore_current_blog();
 		}
 	}
 }
+
+// The rating request's per-user dismissal.
+delete_metadata( 'user', 0, 'respira_inhale_review_dismissed', '', true );

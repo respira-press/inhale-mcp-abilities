@@ -56,6 +56,14 @@ class Respira_Inhale_Settings_Page {
 	 * Called from render_page() before any output.
 	 */
 	private function maybe_process_bulk_action() {
+		// "No thanks" on the rating request: remember it for this user, for good.
+		if ( isset( $_GET['inhale_review'], $_GET['_wpnonce'] ) && 'dismiss' === sanitize_key( wp_unslash( $_GET['inhale_review'] ) ) ) {
+			if ( current_user_can( self::CAPABILITY ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'respira_inhale_review' ) ) {
+				update_user_meta( get_current_user_id(), 'respira_inhale_review_dismissed', 1 );
+			}
+			return;
+		}
+
 		if ( 'POST' !== ( isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : '' ) ) {
 			return;
 		}
@@ -138,6 +146,10 @@ class Respira_Inhale_Settings_Page {
 		}
 
 		update_option( RESPIRA_INHALE_OPTION_NAME, $new_list );
+		// The rating request waits a week from the first saved choice.
+		if ( ! get_option( 'respira_inhale_first_saved_at' ) ) {
+			add_option( 'respira_inhale_first_saved_at', time(), '', false );
+		}
 
 		// Write-through to the canonical compat key proposed first-party in
 		// WordPress/mcp-adapter#184. If that PR ever merges and the upstream
@@ -552,6 +564,7 @@ class Respira_Inhale_Settings_Page {
 		?>
 		<div class="wrap inhale-wrap" data-theme="light">
 			<?php $this->render_notice(); ?>
+			<?php $this->render_review_request(); ?>
 
 			<div class="page-head">
 				<div class="page-head-text">
@@ -621,6 +634,8 @@ class Respira_Inhale_Settings_Page {
 					</button>
 				</div>
 			</div>
+
+			<?php $this->render_status_card( $abilities, $exposed, $endpoint ); ?>
 
 			<?php if ( ! empty( $source_summary ) ) : ?>
 				<aside class="inhale-sources-card" aria-labelledby="inhale-sources-h">
@@ -819,8 +834,8 @@ class Respira_Inhale_Settings_Page {
 						<p style="margin:0 0 6px;"><?php esc_html_e( 'Respira for WordPress connects this site to Claude, ChatGPT, Cursor or Codex in two clicks from the respira.press dashboard: no application passwords, no config files, no terminal. Its native connector carries these abilities alongside its own tools.', 'inhale-mcp-abilities' ); ?></p>
 						<ul style="margin:0 0 8px; padding-left:18px; list-style:disc;">
 							<li><?php esc_html_e( 'Duplicate-before-edit safety: the AI edits a copy, you approve, snapshots keep 90 days of rollback', 'inhale-mcp-abilities' ); ?></li>
-							<li><?php esc_html_e( 'Element-level editing across 16 page builders, not just raw content', 'inhale-mcp-abilities' ); ?></li>
-							<li><?php esc_html_e( '200+ tools included in every plan: SEO, accessibility and performance analysis, bulk operations, media, menus', 'inhale-mcp-abilities' ); ?></li>
+							<li><?php esc_html_e( 'Element-level editing in the page builder each site already uses, not just raw content', 'inhale-mcp-abilities' ); ?></li>
+							<li><?php esc_html_e( 'Signs in from claude.ai and ChatGPT in the browser too, with no Application Password', 'inhale-mcp-abilities' ); ?></li>
 							<li><?php esc_html_e( '7-day free trial, no card', 'inhale-mcp-abilities' ); ?></li>
 						</ul>
 						<p style="margin:0;"><a href="https://respira.press/?utm_source=inhale&amp;utm_medium=wp-admin&amp;utm_campaign=connection-respira" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Connect with Respira', 'inhale-mcp-abilities' ); ?> &rarr;</a></p>
@@ -856,38 +871,37 @@ class Respira_Inhale_Settings_Page {
 				</details>
 
 				<details class="disclosure">
-					<summary><?php esc_html_e( 'Connect with HTTP transport', 'inhale-mcp-abilities' ); ?></summary>
+					<summary><?php esc_html_e( 'Connect with an Application Password (Claude Desktop, Claude Code, Cursor, VS Code)', 'inhale-mcp-abilities' ); ?></summary>
 					<div class="disclosure-body">
 						<ol>
 							<li><?php
 								echo wp_kses(
-									__( 'Go to <em>Users → Profile → Application Passwords</em>.', 'inhale-mcp-abilities' ),
+									__( 'Go to <em>Users &gt; Profile &gt; Application Passwords</em>, create one named after the client (for example "Claude, laptop") and copy it. WordPress shows it only once; the spaces are part of it.', 'inhale-mcp-abilities' ),
 									array( 'em' => array() )
 								);
 							?></li>
-							<li><?php
-								echo wp_kses(
-									/* translators: %s: the application password name `mcp-client` wrapped in <code> tags. */
-									sprintf( __( 'Create a new application password named %s.', 'inhale-mcp-abilities' ), '<code>mcp-client</code>' ),
-									array( 'code' => array() )
-								);
-							?></li>
-							<li><?php esc_html_e( 'Copy the generated token (24 characters, four groups of six).', 'inhale-mcp-abilities' ); ?></li>
-							<li><?php esc_html_e( 'Add the configuration below to your MCP client.', 'inhale-mcp-abilities' ); ?></li>
+							<li><?php esc_html_e( 'Desktop apps that read a JSON config (Claude Desktop, Cursor, VS Code) run a small helper with npx, so Node.js must be installed. Add this entry and restart the app:', 'inhale-mcp-abilities' ); ?></li>
 						</ol>
 <pre>{
   "mcpServers": {
-    "wordpress-inhale": {
-      "transport": "http",
-      "url": "<?php echo esc_html( $endpoint ); ?>",
-      "auth": {
-        "type": "basic",
-        "username": "admin",
-        "password": "xxxx xxxx xxxx xxxx xxxx xxxx"
+    "my-wordpress-site": {
+      "command": "npx",
+      "args": ["-y", "@automattic/mcp-wordpress-remote@latest"],
+      "env": {
+        "WP_API_URL": "<?php echo esc_html( $endpoint ); ?>",
+        "WP_API_USERNAME": "your-username",
+        "WP_API_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx"
       }
     }
   }
 }</pre>
+						<p><?php esc_html_e( 'Clients that accept a URL and a header, such as Claude Code, connect directly. Encode your username and Application Password as one line, then add the server:', 'inhale-mcp-abilities' ); ?></p>
+<pre>printf 'your-username:xxxx xxxx xxxx xxxx xxxx xxxx' | base64 | tr -d '\n'
+
+claude mcp add --transport http my-wordpress-site \
+  <?php echo esc_html( $endpoint ); ?> \
+  --header "Authorization: Basic PASTE_THE_BASE64_HERE"</pre>
+						<p class="muted"><?php esc_html_e( 'claude.ai and ChatGPT in the browser sign in with OAuth and have nowhere to put an Application Password, so they cannot use this endpoint on its own.', 'inhale-mcp-abilities' ); ?></p>
 					</div>
 				</details>
 			</section>
@@ -896,7 +910,7 @@ class Respira_Inhale_Settings_Page {
 
 			<section class="section" aria-labelledby="inhale-about-h">
 				<h2 id="inhale-about-h"><?php esc_html_e( 'About Inhale: MCP Abilities', 'inhale-mcp-abilities' ); ?></h2>
-				<p><?php esc_html_e( 'Inhale: MCP Abilities is a settings-only utility. It does not run MCP servers, transports, or authentication. Those are handled by the official WordPress MCP Adapter, which the Inhale: MCP Abilities plugin extends.', 'inhale-mcp-abilities' ); ?></p>
+				<p><?php esc_html_e( 'Inhale: MCP Abilities is a settings-only utility. It does not run MCP servers, transports, or authentication. Those come from the WordPress MCP Adapter, whichever plugin loads it: the MCP Adapter plugin itself, or a copy shipped inside another plugin.', 'inhale-mcp-abilities' ); ?></p>
 				<p><?php esc_html_e( 'Every ability you inhale still runs its own permission checks before execution. The Inhale: MCP Abilities plugin controls visibility, not authorization.', 'inhale-mcp-abilities' ); ?></p>
 				<p class="muted"><?php esc_html_e( 'Model Context Protocol (MCP) is an open specification originally developed by Anthropic. Inhale: MCP Abilities is a third-party plugin and is not affiliated with, endorsed by, or sponsored by Anthropic. Respira is an independent company.', 'inhale-mcp-abilities' ); ?></p>
 			</section>
@@ -907,7 +921,7 @@ class Respira_Inhale_Settings_Page {
 				echo wp_kses(
 					sprintf(
 						/* translators: 1: link to Respira for WordPress, 2: link to respira.press, 3: link to the abilities directory. */
-						__( 'The Inhale: MCP Abilities plugin is built by Respira, which ships AI infrastructure for WordPress. The main product is %1$s, a safety layer that registers 130+ abilities across 16 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 10 more) with snapshot-before-write protection, render validation and one-click rollback. Learn more at %2$s, or browse the public abilities directory at %3$s.', 'inhale-mcp-abilities' ),
+						__( 'The Inhale: MCP Abilities plugin is built by Respira, which ships AI infrastructure for WordPress. The main product is %1$s, which lets AI apps edit WordPress sites in their own page builder (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and more), with a snapshot before every write and one-click rollback. Learn more at %2$s, or browse the public abilities directory at %3$s.', 'inhale-mcp-abilities' ),
 						'<a href="https://respira.press/?utm_source=inhale&utm_medium=wp-admin&utm_campaign=settings-footer-product" target="_blank" rel="noopener noreferrer">Respira for WordPress</a>',
 						'<a href="https://respira.press/?utm_source=inhale&utm_medium=wp-admin&utm_campaign=settings-footer-cta" target="_blank" rel="noopener noreferrer">respira.press</a>',
 						'<a href="https://www.respira.press/abilities?utm_source=inhale&utm_medium=wp-admin&utm_campaign=settings-footer-abilities-directory" target="_blank" rel="noopener noreferrer">respira.press/abilities</a>'
@@ -921,6 +935,176 @@ class Respira_Inhale_Settings_Page {
 					)
 				);
 			?></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Which MCP Adapter runs here, where it comes from, and whether a client can sign in.
+	 *
+	 * Many sites get the adapter from another plugin (SEO, page builder, form
+	 * and store plugins ship their own copy), so "is it running" and "who
+	 * provides it" are the first two questions when a client connects and
+	 * finds nothing. Read-only: nothing here changes a setting.
+	 *
+	 * @since 0.6.0
+	 *
+	 * @return array{running: bool, version: string, provider: string}
+	 */
+	public static function adapter_status() {
+		$status = array(
+			'running'  => false,
+			'version'  => '',
+			'provider' => '',
+		);
+		if ( ! class_exists( '\WP\MCP\Core\McpAdapter' ) ) {
+			return $status;
+		}
+		$status['running'] = true;
+		if ( defined( 'WP\MCP\Core\McpAdapter::VERSION' ) ) {
+			$status['version'] = (string) constant( 'WP\MCP\Core\McpAdapter::VERSION' );
+		}
+		try {
+			$file = wp_normalize_path( (string) ( new ReflectionClass( '\WP\MCP\Core\McpAdapter' ) )->getFileName() );
+			$base = trailingslashit( wp_normalize_path( WP_PLUGIN_DIR ) );
+			if ( 0 === strpos( $file, $base ) ) {
+				$folder = strtok( substr( $file, strlen( $base ) ), '/' );
+				$status['provider'] = (string) $folder;
+				if ( ! function_exists( 'get_plugins' ) ) {
+					require_once ABSPATH . 'wp-admin/includes/plugin.php';
+				}
+				foreach ( get_plugins() as $plugin_file => $data ) {
+					if ( 0 === strpos( $plugin_file, $folder . '/' ) && ! empty( $data['Name'] ) ) {
+						$status['provider'] = $data['Name'];
+						break;
+					}
+				}
+			}
+		} catch ( \Throwable $e ) {
+			$status['provider'] = '';
+		}
+		return $status;
+	}
+
+	/**
+	 * The status card at the top of the page.
+	 *
+	 * @since 0.6.0
+	 *
+	 * @param array  $abilities Abilities from discover_abilities().
+	 * @param array  $exposed   Names the admin has inhaled.
+	 * @param string $endpoint  Default server endpoint, already escaped.
+	 */
+	private function render_status_card( $abilities, $exposed, $endpoint ) {
+		// The adapter's own discovery tools (managed) are not the site's abilities.
+		$own_total   = 0;
+		$own_exposed = 0;
+		foreach ( $abilities as $a ) {
+			if ( ! empty( $a['managed'] ) ) {
+				continue;
+			}
+			++$own_total;
+			if ( in_array( $a['name'], $exposed, true ) ) {
+				++$own_exposed;
+			}
+		}
+		$adapter = self::adapter_status();
+		$app_pw  = function_exists( 'wp_is_application_passwords_available' ) && wp_is_application_passwords_available();
+		$https   = function_exists( 'wp_is_application_passwords_supported' ) ? wp_is_application_passwords_supported() : is_ssl();
+		$install = current_user_can( 'install_plugins' )
+			? admin_url( 'plugin-install.php?s=mcp-adapter&tab=search&type=term' )
+			: 'https://wordpress.org/plugins/mcp-adapter/';
+		?>
+		<section class="inhale-sources-card inhale-status-card" aria-labelledby="inhale-status-h">
+			<h2 id="inhale-status-h" class="inhale-sources-card__title"><?php esc_html_e( 'Your MCP setup', 'inhale-mcp-abilities' ); ?></h2>
+			<dl class="inhale-status">
+				<div class="inhale-status__row">
+					<dt><?php esc_html_e( 'MCP Adapter', 'inhale-mcp-abilities' ); ?></dt>
+					<dd>
+						<?php if ( $adapter['running'] ) : ?>
+							<span class="inhale-status__ok"><?php esc_html_e( 'Running', 'inhale-mcp-abilities' ); ?></span>
+							<?php
+							$bits = array();
+							if ( '' !== $adapter['version'] ) {
+								/* translators: %s: MCP Adapter version. */
+								$bits[] = sprintf( __( 'version %s', 'inhale-mcp-abilities' ), $adapter['version'] );
+							}
+							if ( '' !== $adapter['provider'] ) {
+								/* translators: %s: name of the plugin that loads the MCP Adapter. */
+								$bits[] = sprintf( __( 'loaded by %s', 'inhale-mcp-abilities' ), $adapter['provider'] );
+							}
+							if ( $bits ) {
+								echo ' <span class="inhale-status__note">(' . esc_html( implode( ', ', $bits ) ) . ')</span>';
+							}
+							?>
+						<?php else : ?>
+							<span class="inhale-status__warn"><?php esc_html_e( 'Not running', 'inhale-mcp-abilities' ); ?></span>
+							<span class="inhale-status__note"><?php esc_html_e( 'Your choices are saved, and AI clients can reach them once an MCP Adapter runs.', 'inhale-mcp-abilities' ); ?></span>
+							<a href="<?php echo esc_url( $install ); ?>"><?php esc_html_e( 'Get MCP Adapter', 'inhale-mcp-abilities' ); ?></a>
+						<?php endif; ?>
+					</dd>
+				</div>
+				<div class="inhale-status__row">
+					<dt><?php esc_html_e( 'Endpoint', 'inhale-mcp-abilities' ); ?></dt>
+					<dd><code><?php echo esc_html( $endpoint ); ?></code></dd>
+				</div>
+				<div class="inhale-status__row">
+					<dt><?php esc_html_e( 'Application Passwords', 'inhale-mcp-abilities' ); ?></dt>
+					<dd>
+						<?php if ( $app_pw ) : ?>
+							<span class="inhale-status__ok"><?php esc_html_e( 'Available', 'inhale-mcp-abilities' ); ?></span>
+						<?php elseif ( ! $https ) : ?>
+							<span class="inhale-status__warn"><?php esc_html_e( 'Not available', 'inhale-mcp-abilities' ); ?></span>
+							<span class="inhale-status__note"><?php esc_html_e( 'WordPress offers them only on sites served over HTTPS (or local sites).', 'inhale-mcp-abilities' ); ?></span>
+						<?php else : ?>
+							<span class="inhale-status__warn"><?php esc_html_e( 'Turned off', 'inhale-mcp-abilities' ); ?></span>
+							<span class="inhale-status__note"><?php esc_html_e( 'A security plugin or your host disabled them, so clients cannot sign in with one.', 'inhale-mcp-abilities' ); ?></span>
+						<?php endif; ?>
+					</dd>
+				</div>
+				<div class="inhale-status__row">
+					<dt><?php esc_html_e( 'Abilities', 'inhale-mcp-abilities' ); ?></dt>
+					<dd>
+						<?php
+						printf(
+							/* translators: 1: abilities exposed to MCP, 2: abilities registered on the site. */
+							esc_html__( '%1$d of %2$d exposed to MCP', 'inhale-mcp-abilities' ),
+							(int) $own_exposed,
+							(int) $own_total
+						);
+						?>
+					</dd>
+				</div>
+			</dl>
+		</section>
+		<?php
+	}
+
+	/**
+	 * Ask for a rating once, a week after the first saved choice, and never again after a dismissal.
+	 *
+	 * Shown only on this page, to administrators, with a plain dismiss link.
+	 *
+	 * @since 0.6.0
+	 */
+	private function render_review_request() {
+		$first_saved = (int) get_option( 'respira_inhale_first_saved_at', 0 );
+		if ( $first_saved <= 0 || ( time() - $first_saved ) < WEEK_IN_SECONDS ) {
+			return;
+		}
+		$user_id = get_current_user_id();
+		if ( ! $user_id || get_user_meta( $user_id, 'respira_inhale_review_dismissed', true ) ) {
+			return;
+		}
+		$dismiss = wp_nonce_url( add_query_arg( 'inhale_review', 'dismiss', menu_page_url( self::MENU_SLUG, false ) ), 'respira_inhale_review' );
+		?>
+		<div class="notice notice-info inhale-notice inhale-review-request">
+			<p>
+				<?php esc_html_e( 'If Inhale saves you some PHP, a short rating on WordPress.org helps other site owners find it. It takes a minute.', 'inhale-mcp-abilities' ); ?>
+				<a href="https://wordpress.org/support/plugin/inhale-mcp-abilities/reviews/#new-post" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Rate Inhale', 'inhale-mcp-abilities' ); ?></a>
+				&nbsp;&middot;&nbsp;
+				<a href="<?php echo esc_url( $dismiss ); ?>"><?php esc_html_e( 'No thanks', 'inhale-mcp-abilities' ); ?></a>
+			</p>
 		</div>
 		<?php
 	}

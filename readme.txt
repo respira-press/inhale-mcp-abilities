@@ -1,220 +1,128 @@
-=== Inhale: MCP Abilities by Respira ===
+=== Inhale: MCP Abilities Manager by Respira ===
 Contributors: urbankidro
-Tags: mcp, ai, abilities, model context protocol, ai infrastructure
+Tags: mcp, mcp server, claude, chatgpt, abilities
 Requires at least: 6.8
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.5.0
+Stable tag: 0.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A small settings page that lets WordPress site administrators choose which registered abilities are exposed to the default MCP server.
+See every ability your plugins give AI agents over MCP, and choose which ones Claude, ChatGPT and other AI clients can use. No code.
 
 == Description ==
 
-Inhale: MCP Abilities is a small, focused utility that solves one problem: the default WordPress MCP server (provided by the official MCP Adapter plugin) does not expose any registered abilities by default. Site administrators have to write PHP filters to opt each ability into the public MCP surface.
+Inhale: MCP Abilities Manager shows you, on one screen, every action your WordPress site offers to AI agents through the Model Context Protocol (MCP), and lets you decide which of them an AI client may use.
 
-This is the workaround pattern documented in WordPress contributor blog posts and developer guides since the MCP Adapter shipped. Inhale: MCP Abilities replaces the PHP-filter workaround with a simple settings page.
+**Why this matters now.** Since WordPress 6.9, plugins register "abilities": small, named actions such as "get site info", "create a post" or "update a product". The WordPress MCP Adapter turns those abilities into tools that Claude, ChatGPT, Cursor and other AI clients can call. Since adapter 0.6 and WordPress 7.1, a plugin that marks its ability as public makes it reachable by AI clients without the site owner choosing. And you may already run the adapter without knowing it: several popular SEO, page builder, form and store plugins load their own copy.
 
-Once installed and activated, you'll find a new page at Settings &gt; Inhale: MCP Abilities where you can check off the abilities you want exposed to your default MCP server.
+Inhale puts that decision back with you. Nothing changes until you choose.
 
-= What the Inhale: MCP Abilities plugin does =
+= What Inhale does =
 
-* Lists every registered WordPress ability across all active plugins and themes
-* Lets you select which abilities are exposed to the default MCP server with simple checkboxes
-* Shows annotation metadata (read-only, destructive, idempotent) on each ability so you can make informed decisions
-* Requires explicit confirmation when you inhale an ability marked as destructive
-* Provides connection info for popular MCP clients (Claude Desktop, Cursor, Claude Code)
-* Respects each ability's own permission_callback. The Inhale: MCP Abilities plugin controls visibility, not authorization.
-* Offers Respira for WordPress as the easiest connection path in the Connection section, and points WooCommerce stores at Respira ARC (free). Both are plain links: nothing loads from respira.press and nothing is sent unless you click.
+* Lists every registered ability on the site, from every plugin and theme, with what it does and which plugin registered it.
+* Lets you switch each one on or off for MCP with a checkbox, or in bulk.
+* Shows the safety hints each ability carries: read-only, destructive, idempotent. Filter to read-only abilities in one click. Turning on a destructive ability asks you to confirm.
+* Shows your MCP setup at a glance: whether an MCP Adapter is running, its version and which plugin loads it, your endpoint URL, and whether Application Passwords work on this site.
+* Gives copy-paste connection steps for Claude Desktop, Claude Code, Cursor, VS Code and WP-CLI.
+* Keeps your choice when a plugin author marks an ability public. On WordPress 7.1, every ability gets an explicit decision from you, so "not selected" really means not exposed.
 
-= What the Inhale: MCP Abilities plugin doesn't do =
+= What Inhale does not do =
 
-* Inhale: MCP Abilities does not run any MCP servers, transports, or authentication. Those are handled by the official MCP Adapter plugin, which the Inhale: MCP Abilities plugin extends.
-* Inhale: MCP Abilities does not register any abilities of its own. It only toggles visibility of abilities other plugins have registered.
-* Inhale: MCP Abilities does not phone home, collect telemetry, or make external network requests.
+* It does not run an MCP server or handle sign-in. The WordPress MCP Adapter does that, whichever plugin loads it.
+* It does not register abilities of its own or change what an ability does. Every ability still runs its own permission checks for the signed-in user.
+* It does not phone home, collect telemetry or load anything from outside your site. The links on the settings page only matter when you click them.
 
 = Requirements =
 
-* WordPress 6.8 or later (Abilities API in core since 6.9; 6.8 requires the Abilities API plugin)
-* PHP 7.4 or later
-* The official WordPress MCP Adapter plugin installed and active
+* WordPress 6.8 or later. The Abilities API is in core from 6.9; on 6.8 it needs the Abilities API plugin.
+* PHP 7.4 or later.
+* A WordPress MCP Adapter, for AI clients to connect: the [MCP Adapter plugin](https://wordpress.org/plugins/mcp-adapter/) or a copy loaded by another plugin. Inhale shows which one is running. You can make your choices before an adapter is installed; they apply once one runs.
 
 = Browse the abilities directory =
 
-Respira maintains a public, regularly-refreshed directory of WordPress plugins that register abilities through the Abilities API, including Respira's own and the Respira WooCommerce add-on. Browse it at [respira.press/abilities](https://www.respira.press/abilities?utm_source=inhale&utm_medium=wp-org&utm_campaign=readme-abilities-directory) to see what each plugin exposes to AI agents before you decide which abilities to inhale.
+Respira keeps a public directory of WordPress plugins that register abilities. Browse it at [respira.press/abilities](https://www.respira.press/abilities?utm_source=inhale&utm_medium=wp-org&utm_campaign=readme-abilities-directory) to see what a plugin exposes before you install it.
 
 = About MCP =
 
-Model Context Protocol (MCP) is an open specification originally developed by Anthropic. Inhale: MCP Abilities is a third-party plugin and is not affiliated with, endorsed by, or sponsored by Anthropic. Respira is an independent company.
+Model Context Protocol (MCP) is an open specification originally developed by Anthropic. Inhale is a third-party plugin and is not affiliated with, endorsed by, or sponsored by Anthropic or OpenAI.
 
 = About Respira =
 
-The Inhale: MCP Abilities plugin is built and maintained by Respira, which ships AI infrastructure for WordPress. The main product is Respira for WordPress, a safety layer that registers 130+ abilities across 16 page builders (Elementor, Bricks, Divi, Beaver Builder, Oxygen, Breakdance and 10 more) with snapshot-before-write protection, render validation and one-click rollback. Inhale: MCP Abilities is a free utility offered to the WordPress community. Learn more at [respira.press/inhale](https://respira.press/inhale?utm_source=inhale&utm_medium=wp-org&utm_campaign=readme-description).
+Inhale is built and maintained by Respira. Respira's main product, Respira for WordPress, lets AI apps edit WordPress sites in the page builder each site already uses, with a snapshot before every write and one-click rollback, and signs in from claude.ai and ChatGPT in the browser. Inhale is free and works on its own. Learn more at [respira.press/inhale](https://respira.press/inhale?utm_source=inhale&utm_medium=wp-org&utm_campaign=readme-description).
 
 == Installation ==
 
-1. Install and activate the official WordPress MCP Adapter plugin (https://github.com/WordPress/mcp-adapter)
-2. Install Inhale: MCP Abilities from the WordPress plugin directory or by uploading the plugin zip
-3. Activate the Inhale: MCP Abilities plugin
-4. Navigate to Settings &gt; Inhale: MCP Abilities
-5. Check the abilities you want exposed to your default MCP server
-6. Save changes
-7. Connect your MCP client (Claude Desktop, Cursor, Claude Code, or any MCP-compatible AI assistant) to the endpoint shown on the Inhale: MCP Abilities settings page
+1. Install and activate Inhale from Plugins > Add New Plugin.
+2. Go to Settings > Inhale: MCP Abilities. The "Your MCP setup" card shows whether an MCP Adapter is running. If none is, use the "Get MCP Adapter" link to install the MCP Adapter plugin.
+3. Tick the abilities you want AI clients to use, or filter to read-only abilities and select them all. Apply.
+4. Connect your AI client with the steps under Connection on the same page. The endpoint shown there is already correct for your site, including sites in a subdirectory and sites with plain permalinks.
 
 == Frequently Asked Questions ==
 
-= Do I need to write any code to use the Inhale: MCP Abilities plugin? =
+= How do I connect Claude to my WordPress site? =
 
-No. Inhale: MCP Abilities is a settings-only utility. The whole point is to replace the PHP-filter workaround with a UI.
+Create an Application Password under Users > Profile, then use the Connection steps on the Inhale settings page. Claude Desktop uses a small helper started with npx; Claude Code connects directly with a one-line command. Both are shown with your site's real endpoint filled in.
 
-= Does Inhale: MCP Abilities work with the WordPress AI plugin? =
+= Can claude.ai or ChatGPT in the browser connect? =
 
-Inhale: MCP Abilities works alongside the WordPress AI plugin without conflicts. The WordPress AI plugin handles AI-powered editor features inside wp-admin. The Inhale: MCP Abilities plugin handles which abilities are exposed to external MCP clients via the MCP Adapter.
+Not with an Application Password. The web versions of Claude and ChatGPT sign in with OAuth, and the MCP Adapter does not provide OAuth on its own. Desktop and command-line clients work. Respira for WordPress adds an OAuth sign-in if you need the browser apps.
 
-= Is the Inhale: MCP Abilities plugin safe to use on production sites? =
+= Which abilities are exposed on my site right now? =
 
-The Inhale: MCP Abilities plugin is conservative by default: no abilities are exposed until you explicitly check them, and destructive abilities require additional confirmation. Inhale: MCP Abilities doesn't change how WordPress abilities work; it only controls their visibility to the default MCP server. Each ability still runs its own permission checks before execution.
+Open Settings > Inhale: MCP Abilities. The status card shows how many abilities are exposed out of how many are registered, and the list shows each one with its source plugin. Use the "Inhaled" view to see only the exposed ones.
 
-= What's the relationship between Inhale: MCP Abilities and Respira? =
+= I installed an SEO, page builder or store plugin. Is an MCP server running? =
 
-Inhale: MCP Abilities is a free utility built and maintained by Respira. Respira's main product is Respira for WordPress, a safety layer for AI-driven edits across 16 page builders. The two products are separate. You can use the Inhale: MCP Abilities plugin without ever using Respira for WordPress.
+Possibly. Several popular plugins load their own copy of the MCP Adapter. The status card shows whether an adapter is running and which plugin loads it, so you know before an AI client connects.
 
-= Will write operations work through MCP? =
+= Do I need to write any code? =
 
-Yes, if you inhale abilities that perform writes. Whether a particular ability performs writes is determined by the plugin that registered the ability, not by Inhale: MCP Abilities. The Inhale: MCP Abilities plugin surfaces annotation metadata (destructive, idempotent) where the registering plugin has provided it, so you can make informed decisions.
+No. Inhale replaces the PHP filters you would otherwise write with checkboxes.
+
+= Is it safe to use on production sites? =
+
+Inhale only controls visibility. It never grants a permission the signed-in user does not have, and every ability runs its own checks before it does anything. Turning on a destructive ability asks you to confirm. For production, connect AI clients as a dedicated user with the lowest role that can do the job.
+
+= Does Inhale work with the WordPress AI plugin? =
+
+Yes. The WordPress AI plugin adds AI features inside wp-admin; Inhale controls which abilities external MCP clients can reach. They do not overlap.
+
+= What is the relationship between Inhale and Respira for WordPress? =
+
+Respira builds and maintains Inhale for free. Respira for WordPress includes the same controls, so you do not need both; Inhale steps aside automatically when Respira is active.
 
 == Screenshots ==
 
 1. The Inhale: MCP Abilities settings page in light mode: page header with the "by respira.press" subtitle, sources card listing every plugin that registers abilities, filter tabs (All, Inhaled, Read-only, Destructive, Unannotated), search, and the wp-admin native abilities list table with iOS-style toggle switches in the Status column.
 2. The abilities list table close-up: row checkboxes for bulk selection, toggles per row (green when inhaled, grey when not), Source column showing the registering plugin, descriptions sourced from each ability's declared meta, and annotation badges (Read-only, Destructive, Idempotent).
-3. The Connection section showing the default MCP server endpoint with copy-to-clipboard, expandable client configuration guides for WP-CLI STDIO and HTTP transports with application passwords, and the About section with the Anthropic trademark disclaimer.
+3. The Connection section: the endpoint with copy-to-clipboard, and copy-paste setups for Claude Desktop, Cursor, VS Code, Claude Code and WP-CLI.
 4. Dark mode view: the entire wp-admin content column paints dark together with the Inhale page, the wordmark and subtitle render with brand-spec emerald (#86efac) typography, and the abilities table inherits the dark surface tokens.
 
 == Changelog ==
 
+= 0.6.0 =
+* Added: a "Your MCP setup" card at the top of the settings page: whether an MCP Adapter is running, its version and which plugin loads it, the endpoint, whether Application Passwords work on this site, and how many abilities are exposed.
+* Changed: Inhale no longer says it needs the MCP Adapter plugin specifically. It works with any copy of the adapter, including the ones other plugins load, and your choices apply as soon as one runs.
+* Fixed: the Connection steps showed a config format no client reads and described Application Passwords as "four groups of six" characters. They now show working setups for Claude Desktop, Cursor and VS Code (through @automattic/mcp-wordpress-remote) and for Claude Code (a single command with a one-line Basic header).
+* Added: one rating request, a week after you first save a choice, on this page only, with a "No thanks" that is permanent.
+
+= 0.5.1 =
+* Fixed: activating Inhale on a site already running Respira for WordPress could end in a fatal error. Inhale now steps aside with a notice when Respira has already loaded it.
+
 = 0.5.0 =
-* WordPress 7.1 compatibility, and it matters more than a compatibility note usually does. 7.1 adds a unified `meta.public` flag for abilities, and integrations resolve exposure as `$meta[ $channel ]['public'] ?? $meta['public'] ?? false`. Until now this plugin only ever marked the abilities you inhaled, and left everything else alone. On 7.1 "left alone" stops meaning "not exposed": an ability you did not inhale, whose author set `public => true`, would fall through to the author's value and be exposed to MCP clients anyway. That inverts the promise this plugin makes, which is that you decide what is reachable, not the plugin author.
-* Every ability now carries an explicit decision, true or false, on the MCP channel. Core's resolution preserves an explicit false and only falls through on null, so your choice wins. Nothing changes on WordPress 6.8, 6.9 or 7.0, where the unified flag does not exist yet.
-* Your selection still overrides an author's general opt-out in the other direction too: inhale an ability whose author set `public => false` and it is exposed, because you asked for it specifically.
-* An author's own `meta.public` is never rewritten. This plugin sets its channel value and touches nothing else in someone else's registration.
+* Changed: WordPress 7.1 compatibility. 7.1 adds a unified meta.public flag for abilities; every ability now carries an explicit decision from you on the MCP channel, so an ability you did not select stays unexposed even if its author marked it public.
 
 = 0.4.5 =
-* "Connect with Respira for WordPress" added as the first option in the Connection section: two-click connect from the respira.press dashboard, duplicate-before-edit safety with 90-day rollback, element-level editing across 16 builders, 200+ tools in every plan, 7-day trial without a card. Same rule as everything else here: no runtime calls, the link only matters when a human clicks it.
-* When Respira ARC (or the WooCommerce Add-on) is already active, the ARC card now confirms the store is covered instead of disappearing silently.
+* Added: "Connect with Respira for WordPress" as an option in the Connection section. Links only, no runtime calls.
 
-= 0.4.4 =
-* WooCommerce stores get a pointer to Respira ARC on the settings page: the free companion plugin that makes the store itself readable to AI shopping assistants (product feeds in six formats, a store llms.txt, an AI-readiness score, attributed cart links). The card only appears when WooCommerce is active and neither ARC nor the Respira WooCommerce Add-on is installed, and it disappears once either is. Same no-telemetry stance: the plugin does not call out at runtime, the link only matters when a human clicks it.
-
-= 0.4.3 =
-* New "Browse the abilities directory" section in the readme and an "Abilities directory" link in the settings page header and footer, both pointing to https://www.respira.press/abilities. The directory is a public, regularly-refreshed list of WordPress plugins that register abilities through the Abilities API (including Respira's own and the Respira WooCommerce add-on), so site owners can see what each plugin exposes to AI agents. Same no-telemetry stance as before: the plugin does not call out at runtime, the link only matters when a human clicks it.
-* Description copy: Respira for WordPress now covers 16 page builders (was 12). Updated across the readme, settings page footer, and translation template.
-
-= 0.4.2 =
-* Every outbound link from the settings page and the readme to respira.press now carries `utm_source=inhale` plus a `utm_medium` and `utm_campaign` that name the specific click location (settings-header, settings-docs, settings-footer, readme-description). This lets Respira measure how many sign-ups and how much revenue on respira.press are attributable to the Inhale plugin as a referral channel, without any change to the destination pages or any extra plugin code. The plugin itself does not call out, fetch, or send anything to respira.press at runtime; the UTM tags only matter when a human clicks a link.
-
-= 0.4.1 =
-* WP-CLI snippet in the Connection section now uses the canonical `wp mcp-adapter serve` subcommand (was `wp mcp stdio`, which is not a registered subcommand and resulted in a "command not found" error when pasted into Claude Desktop). The snippet also includes `--user=admin` so the serve process runs with admin capabilities and can read the registered abilities.
-* New note above the WP-CLI snippet explains that STDIO transport requires WordPress and the MCP client to run on the same machine. Most real-world installs sit on a remote host, in which case the HTTP transport snippet below is the correct path.
-
-= 0.4.0 =
-* Plugin Directory review feedback. Three fixes addressing the initial review.
-* Generic prefixes replaced. Every constant, class, function, filter, nonce and CSS ID prefixed with `RESPIRA_INHALE_*` / `Respira_Inhale_*` / `respira_inhale_*` (was `INHALE_*` / `Inhale_*` / `inhale_*`). Class files renamed to `class-respira-inhale-*.php`. The new prefix is unique to this plugin and does not collide with the wider `respira_*` namespace used by the main Respira for WordPress plugin.
-* Option key properly prefixed. Primary storage is now `respira_inhale_public_abilities`. The plugin also mirrors writes to `mcp_adapter_public_abilities` (the canonical key proposed in WordPress/mcp-adapter#184) and reads it as a fallback, so the two surfaces share state if and when the upstream adapter ships its own settings UI. A one-shot migration on plugin upgrade copies any prior selections (v0.1.x legacy key or v0.2.x-v0.3.x canonical-only key) onto the new prefixed key and removes the old options.
-* REST endpoint built with `rest_url()`. The Connection section endpoint URL is now generated via `rest_url('mcp/mcp-adapter-default-server')` instead of concatenating `home_url()` with a hardcoded `/wp-json` path, so it resolves correctly on installs with non-standard REST base configuration, sub-directory permalinks, and multisite blogs.
-* Display name updated to "Inhale: MCP Abilities by Respira" to make the author attribution clearer in wp-admin plugin lists. Slug `inhale-mcp-abilities` is unchanged.
-* `Contributors` field in readme.txt now lists the wp.org-owner username (`urbankidro`) instead of the brand string. The `Author` plugin header still reads "Respira" so the visible attribution on the wp.org directory page is unchanged.
-* Uninstall handler updated to remove the new primary key, the v0.4.0 migration flag, the canonical compat key, and every legacy key from v0.1.x and v0.2.x. Single-site and multisite sweep.
-
-= 0.3.2 =
-* Plugin Check (PCP) pass. Short description rewritten in standard English. Translators comment moved to sit directly above the `__()` call so PCP's i18n linter sees it. Inline `phpcs:ignore` annotations added on the read-only `$_GET['notice']` display path (post-redirect-get banner; no state change, value whitelisted) and on the `$_POST['abilities']` array read (sanitized per element below). Inhale_I18n drops the now-discouraged `load_plugin_textdomain()` call since wp.org auto-loads translations for plugins hosted in the Plugin Directory. Multisite-cleanup variables in `uninstall.php` prefixed (`$inhale_sites`, `$inhale_site_id`) to satisfy the PrefixAllGlobals rule.
-* Asset loader simplified. The `admin.min.css` / `admin.min.js` duplicates have been removed; the single `admin.css` / `admin.js` files are the only enqueued assets. The Plugin Directory prefers human-readable code; the admin page is small and loaded on one settings screen only, so a separate minified bundle wasn't pulling any real payload weight.
-* GitHub archive exclusions hardened. README.md, .distignore and a few other dev-only files now carry the `export-ignore` attribute, so the submission zip stays focused on runtime files.
-
-= 0.3.1 =
-* Add the four wp.org Plugin Directory screenshots, captured at 1600x1000 from a live v0.3.0 install (Studio, WordPress 7.0-RC4, 155 registered abilities across Respira, Respira WooCommerce and WordPress core): the settings page hero, the abilities list close-up showing toggle switches and annotation badges, the Connection section with endpoint + transport guides, and the dark-mode view. Screenshot descriptions in readme.txt refreshed to match.
-
-= 0.3.0 =
-* Plugin Directory submission release. Full pass on the codebase to meet WordPress.org plugin review guidelines: every PHP file has an ABSPATH guard, every output is escaped through `esc_attr` / `esc_html` / `esc_url`, every input is sanitized and capability-checked, every state-changing request is nonce-verified, and translatable strings carry a text domain matching the plugin slug.
-* Settings page chrome: page header restructure with "by respira.press" as a Baskervville italic subtitle and a small version pill in the right-side toolbar. Both adapt per theme via `--accent-text` and `--accent-border` tokens so contrast is AA on light and dark surfaces.
-* Theme toggle: layout shift between dark and light is gone. Background, padding and margin moved to the base `.inhale-wrap` selector and the dark variant only redefines color tokens. A body class (`inhale-theme-dark`) mirrors the data-theme attribute so the WP admin content column, sidebar and footer all paint dark together with no "white band" anywhere on the page.
-* Notifications scoping: every admin notice queued by other plugins or the active theme is suppressed on the Inhale settings page (license nags, plugin-install banners, trial reminders, etc.). Inhale's own success / warning notices render inline and survive the cleanup.
-* Uninstall hardening: `uninstall.php` now removes every option this plugin has ever written: the canonical `mcp_adapter_public_abilities` key (v0.2.0+), the legacy `inhale_mcp_abilities_public_abilities` key (v0.1.x), and the `inhale_option_migrated_v020` migration flag. Multisite installations sweep every blog in `get_sites()` so no orphaned wp_options rows remain.
-* Tested with WordPress 7.0-RC4 and PHP 8.4 on Studio. Confirmed no remote calls, no tracking, no obfuscated code, no external dependencies. License is GPL-2.0-or-later with the full GPL text included in `LICENSE`.
-
-= 0.2.3 =
-* Eliminate the dark/light theme layout shift. Background, padding and margin now apply to the base `.inhale-wrap` instead of only the dark variant, so toggling theme no longer pushes the title up or down.
-* Paint `#wpbody-content` dark too when the dark theme is active, via a body class (`inhale-theme-dark`) the JS adds in lockstep with the `data-theme` attribute. Closes the "white bar at the top" gap between the WP admin bar and the Inhale page in dark mode.
-* Restructure the page header: "by respira.press" is now a subtitle directly under the H1 in 14px Baskervville italic emerald, aligned with the title block next to the dot-grid logo.
-* Move the version pill from the H1 to the right-side toolbar, sized down to 9.5px monospace lowercase. Sits between the Documentation link and the theme toggle.
-
-= 0.2.2 =
-* Suppress every admin notice queued by other plugins or the active theme on the Inhale settings page. Inhale's own notices (rendered inline via render_notice()) survive, every other one (license warnings, plugin-install nags, update banners, etc.) is dropped on this screen only. Implemented via `remove_all_actions( 'admin_notices' / 'all_admin_notices' / 'user_admin_notices' / 'network_admin_notices' )` on the `current_screen` hook, scoped to `settings_page_inhale-mcp-abilities`.
-* Add "by respira.press" attribution after the page title, rendered in Baskervville italic emerald (#86efac) per the canonical respira.press/brand spec, with system serif fallbacks so no external font fetch is required.
-* Add a small pill next to the attribution showing the current plugin version (`v0.2.2`). Pill uses the emerald accent palette and the mono font, sized 11px, focus-visible underline on the linked attribution.
-
-= 0.2.1 =
-* Replace the Status column text pill ("Inhaled" / em-dash) with an iOS-style toggle switch. Green when the ability is inhaled, off when not. Clicking the toggle commits the change immediately, same single-row flow as the existing row-hover quick action. Managed rows (mcp-adapter namespace) render a disabled toggle. Destructive abilities still trigger the confirmation dialog before flipping on.
-* No behavioral change on saved data; the option key remains `mcp_adapter_public_abilities` from v0.2.0.
-
-= 0.2.0 =
-* Rename the option key from `inhale_mcp_abilities_public_abilities` to the canonical `mcp_adapter_public_abilities` so Inhale shares storage with the settings UI proposed upstream in WordPress/mcp-adapter PR #184. A one-shot migration on plugin upgrade preserves all v0.1.x selections, deletes the legacy key, and sets a `inhale_option_migrated_v020` flag so it runs once.
-* No UI or behavior changes. Sites with no prior selections are unaffected.
-
-= 0.1.1 =
-* Hardening pass: the permission-denied path in the settings page render now passes HTTP response code 403 and a back link to `wp_die()`, so access logs and automated clients see an authorization failure instead of a generic error.
-* Normalize row-class escaping in the abilities table: always render the `<tr>` class attribute through `esc_attr()` instead of conditionally injecting the attribute fragment. No behavioral change, conforms more strictly to the WordPress Plugin Check `WordPress.Security.EscapeOutput` rule.
-* Mirrors the equivalent review feedback addressed upstream on WordPress/mcp-adapter PR #184.
-
-= 0.1.0 =
-* Initial release.
-* Settings page at Settings &gt; Inhale: MCP Abilities, registered with `manage_options` capability.
-* Discovers every ability registered via the WordPress Abilities API (`wp_get_abilities()`) and lists them in a wp-admin native list table.
-* Standard wp-admin selection + bulk-action UX: row checkboxes are selection, the Bulk Actions dropdown plus Apply commits Inhale or Exhale immediately.
-* Row-hover quick actions for single-ability inhale or exhale.
-* Annotation badges on each ability (read-only, destructive, idempotent) sourced from the ability's declared meta; falls back to heuristic inference from the ability name when the registering plugin didn't tag it, with a dashed border and asterisk to mark inferred annotations.
-* Filter views (All, Inhaled, Read-only, Destructive, Unannotated) and a search box that matches across name, source and description.
-* Multi-select source filter on the Source column to narrow by the registering plugin or theme.
-* Sortable columns (Ability, Source, Description, Status).
-* Client-side pagination: 20 / 50 / 100 / All items per page, with wp-admin-native page navigation chrome.
-* Sources summary card above the table listing every plugin or theme that registers abilities, with the count per source and a deep-link to that plugin's wp-admin home.
-* Destructive ability confirmation: one consolidated dialog when a bulk Inhale would expose destructive abilities; one dialog per single-row Inhale link.
-* Annotation legend section under the table explaining what each annotation means, including how inferred annotations differ from declared ones.
-* Connection section showing the default MCP server endpoint with copy-to-clipboard, and expandable connection guides for WP-CLI STDIO transport and HTTP transport with application passwords.
-* About section with the MCP / Anthropic trademark disclaimer (this plugin is third-party, not affiliated with Anthropic).
-* Light and dark mode support, persisted per browser in localStorage and respecting the wp-admin color scheme on first load.
-* WCAG AA contrast in both modes; full keyboard accessibility.
-* Filter (`wp_register_ability_args` at priority 10) is the only writer to ability meta; existing meta on opted-in abilities is preserved.
-* Adapter-managed abilities (`mcp-adapter/*` namespace) are surfaced as read-only "Managed" rows and skipped by the filter.
+= Earlier versions =
+The full history is on [GitHub](https://github.com/respira-press/inhale-mcp-abilities/commits/main).
 
 == Upgrade Notice ==
 
-= 0.4.3 =
-Adds a link to the public Respira abilities directory (https://www.respira.press/abilities) in the readme and settings page, so you can browse which plugins register abilities before choosing what to inhale. No behavioral change, no telemetry. Safe to upgrade.
+= 0.6.0 =
+Adds a status card showing whether an MCP Adapter runs and which plugin loads it, and fixes the connection steps.
 
-= 0.4.2 =
-Adds UTM tags to outbound respira.press links so the plugin shows up as an attribution source in Respira's acquisition dashboard. Same destination pages, no telemetry from the plugin itself. Safe to upgrade.
-
-= 0.4.1 =
-Fixes the WP-CLI snippet in the Connection section. Pre-0.4.1 the snippet pointed at `wp mcp stdio`, which is not a registered subcommand and resulted in a "command not found" error. Now uses `wp mcp-adapter serve` with `--user=admin`. Adds a note that STDIO transport is local-only; remote sites should use HTTP. No behavioral change to abilities or the settings page itself. Safe to upgrade.
-
-= 0.4.0 =
-Plugin Directory review fixes: prefix every identifier with `respira_inhale_*`, prefix the option key, use `rest_url()` for the Connection endpoint. A one-shot migration preserves prior selections. Safe to upgrade.
-
-= 0.3.2 =
-Plugin Check (PCP) pass: i18n + sanitization annotations, simplified asset loader, hardened export exclusions. No behavioral change. Safe to upgrade.
-
-= 0.3.1 =
-Adds the four wp.org Plugin Directory screenshots; no runtime changes.
-
-= 0.3.0 =
-WordPress.org Plugin Directory submission release. Full codebase pass against the plugin review guidelines, page header restructure, dark/light theme parity, light-mode contrast fix, foreign-notice suppression on the Inhale page, and hardened uninstall (single-site and multisite). Safe to upgrade.
-
-= 0.2.0 =
-Option key renamed to the canonical `mcp_adapter_public_abilities` shared with WordPress/mcp-adapter PR #184. A one-shot migration runs on plugin upgrade so v0.1.x selections are preserved automatically. Safe to upgrade.
-
-= 0.1.1 =
-Security hardening pass on the settings page render path. No new features. Safe to upgrade.
-
-= 0.1.0 =
-Initial release.
+= 0.5.1 =
+Fixes a fatal error when Inhale is activated on a site already running Respira for WordPress.
