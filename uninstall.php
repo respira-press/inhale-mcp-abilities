@@ -24,10 +24,10 @@ delete_option( 'respira_inhale_option_migrated_v040' );
 // orphan options behind after uninstall.
 delete_option( 'mcp_adapter_public_abilities' );
 
-// Legacy v0.1.x option key, replaced by the canonical key in v0.2.0.
-// Deleted in case a site is uninstalling on an older version that never
-// migrated.
-delete_option( 'inhale_mcp_abilities_public_abilities' );
+// Not deleted: inhale_mcp_abilities_public_abilities. It was this plugin's
+// v0.1.x key, and it is also the live list of the Inhale copy inside Respira
+// for WordPress. Up to 0.7.0 uninstalling Inhale deleted it, which removed
+// Respira's choices on a site running both. Since 0.7.1 it is left alone.
 
 // Legacy v0.2.0 migration flag, superseded by the v0.4.0 flag above.
 delete_option( 'inhale_option_migrated_v020' );
@@ -43,7 +43,6 @@ if ( function_exists( 'is_multisite' ) && is_multisite() && function_exists( 'ge
 			delete_option( 'respira_inhale_public_abilities' );
 			delete_option( 'respira_inhale_option_migrated_v040' );
 			delete_option( 'mcp_adapter_public_abilities' );
-			delete_option( 'inhale_mcp_abilities_public_abilities' );
 			delete_option( 'inhale_option_migrated_v020' );
 			delete_option( 'respira_inhale_first_saved_at' );
 			restore_current_blog();
