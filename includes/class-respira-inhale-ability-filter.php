@@ -30,7 +30,8 @@ class Respira_Inhale_Ability_Filter {
 	 * Add `meta.mcp.public = true` to abilities the admin has inhaled.
 	 *
 	 * Abilities registered under the `mcp-adapter/` namespace are skipped:
-	 * the adapter manages its own surface.
+	 * the adapter manages its own surface. Abilities that Respira for WordPress
+	 * registers (see is_respira_ability()) are skipped too, since 0.7.1.
 	 *
 	 * Reads from the plugin-prefixed primary option first; if that is
 	 * empty, falls back to the canonical compat key proposed in
@@ -52,6 +53,30 @@ class Respira_Inhale_Ability_Filter {
 		}
 
 		if ( 0 === strpos( $ability_name, 'mcp-adapter/' ) ) {
+			return $args;
+		}
+
+		// Respira's own abilities keep exactly what they registered with.
+		//
+		// The rule below writes an explicit false on every ability that is not
+		// in Inhale's list. Up to 0.7.0 that included respira/* and
+		// respira-playbooks/*, and Respira's MCP endpoint treats
+		// mcp.public = false as private: on a site running Respira and this
+		// plugin, Respira's own tools disappeared from Respira's own connection
+		// (reported on Respira 9.2.23 + Inhale 0.7.0, 2026-10-27).
+		//
+		// This is how Respira's bundled copy of this filter behaves: it only
+		// ever sets true and never writes false, and Respira does not ask for
+		// its own abilities to be in the list (they need no opt-in there; its
+		// Tools switches govern them). Since 0.7.1 this plugin stands aside
+		// when Respira is active, so this is the backstop for any request in
+		// which both run, such as the one that activates Respira.
+		//
+		// Third-party abilities keep the both-directions rule below, on
+		// purpose: dropping the explicit false would let an ability whose
+		// author set `public => true` reach MCP clients on WordPress 7.1
+		// without the administrator choosing it.
+		if ( self::is_respira_ability( $ability_name ) ) {
 			return $args;
 		}
 
@@ -99,5 +124,23 @@ class Respira_Inhale_Ability_Filter {
 		$args['meta']['mcp']['public'] = in_array( $ability_name, $exposed, true );
 
 		return $args;
+	}
+
+	/**
+	 * Whether an ability belongs to Respira for WordPress: its own tools
+	 * (respira/), playbooks authored on the site through Respira
+	 * (respira-playbooks/) and its WooCommerce add-on (respira-woocommerce/).
+	 * The same namespaces Respira treats as needing no opt-in.
+	 *
+	 * @param string $ability_name Ability name.
+	 * @return bool
+	 */
+	public static function is_respira_ability( $ability_name ) {
+		foreach ( array( 'respira/', 'respira-playbooks/', 'respira-woocommerce/' ) as $prefix ) {
+			if ( 0 === strpos( $ability_name, $prefix ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

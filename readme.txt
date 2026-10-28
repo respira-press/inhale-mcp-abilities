@@ -4,7 +4,7 @@ Tags: mcp, mcp server, claude, chatgpt, abilities
 Requires at least: 6.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.7.0
+Stable tag: 0.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -131,6 +131,11 @@ Before you connect, Inhale makes no external requests. Links on the settings pag
 
 == Changelog ==
 
+= 0.7.1 =
+* Fixed: on a site that also runs Respira for WordPress, Inhale now steps aside whatever order the two plugins load in. Before, Inhale loaded first and took the place of the copy inside Respira, and Respira's Abilities screen could fail to load. A note on the Plugins screen says Respira already includes Inhale and that you can deactivate this plugin. If you deactivate Respira later, Inhale takes over again on the next page load.
+* Fixed: Inhale no longer hides Respira's own abilities (respira/, respira-playbooks/ and respira-woocommerce/) from MCP. Abilities from every other plugin still need your choice, as before.
+* Fixed: Inhale no longer deletes the list of abilities Respira for WordPress keeps (the inhale_mcp_abilities_public_abilities setting). Versions 0.4.0 to 0.7.0 could remove it on a site that had used Respira: once when Inhale first ran (after copying it into Inhale's own list, if that was empty), and when Inhale was deleted. Respira 9.2.24 and later read both lists.
+
 = 0.7.0 =
 * Added: a free site check. Connect a free Respira account and Inhale checks WordPress, your plugins and your themes against 40,000+ known vulnerabilities from Wordfence Intelligence, every week, and shows what to update. Opt in, off until you connect, listed under External services.
 * Added: a link to the free accessibility scan that comes with the same account.
@@ -155,6 +160,9 @@ Before you connect, Inhale makes no external requests. Links on the settings pag
 The full history is on [GitHub](https://github.com/respira-press/inhale-mcp-abilities/commits/main).
 
 == Upgrade Notice ==
+
+= 0.7.1 =
+For sites that also run Respira for WordPress: Inhale now steps aside for Respira, never hides Respira's abilities and never deletes Respira's list of abilities.
 
 = 0.7.0 =
 Adds an optional free weekly vulnerability check of your plugins and themes. Nothing is sent unless you connect.
