@@ -1,14 +1,14 @@
-=== Inhale: MCP Abilities Manager by Respira ===
+=== Inhale: MCP Abilities Manager for AI Agents ===
 Contributors: urbankidro
-Tags: mcp, mcp server, claude, chatgpt, abilities
+Tags: mcp, ai, abilities, claude, chatgpt
 Requires at least: 6.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.7.1
+Stable tag: 0.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-See every ability your plugins give AI agents over MCP, and choose which ones Claude, ChatGPT and other AI clients can use. No code.
+Choose which WordPress abilities AI agents like Claude and ChatGPT can use over MCP. See every ability on one screen. Free, no code.
 
 == Description ==
 
@@ -53,15 +53,26 @@ No card and no trial. Inhale works the same whether you connect or not, and Disc
 
 = Browse the abilities directory =
 
-Respira keeps a public directory of WordPress plugins that register abilities. Browse it at [respira.press/abilities](https://www.respira.press/abilities?utm_source=inhale&utm_medium=wp-org&utm_campaign=readme-abilities-directory) to see what a plugin exposes before you install it.
+Respira keeps a public directory of WordPress plugins that register abilities. Browse it at [respira.press/abilities](https://www.respira.press/abilities?utm_source=wporg&utm_medium=inhale&utm_campaign=listing-abilities) to see what a plugin exposes before you install it.
+
+= When you want AI to edit your pages =
+
+Inhale decides what AI clients can see. It does not edit pages. If you want Claude, ChatGPT or Cursor to change your pages, I built [Respira for WordPress](https://www.respira.press/?utm_source=wporg&utm_medium=inhale&utm_campaign=listing) for that step:
+
+* Edits in the page builder your site already uses (Elementor, Divi, Bricks, Gutenberg and others), not raw HTML.
+* A snapshot before every change, and a one-click undo.
+* Changes to a published page go to a draft copy first, so you approve before anything goes live.
+* Signs in from claude.ai and ChatGPT in the browser, with no Application Password.
+
+It has a 7-day free trial with no card. Inhale stays free and works on its own either way. When both are active, Inhale steps aside, because Respira includes the same controls.
 
 = About MCP =
 
 Model Context Protocol (MCP) is an open specification originally developed by Anthropic. Inhale is a third-party plugin and is not affiliated with, endorsed by, or sponsored by Anthropic or OpenAI.
 
-= About Respira =
+= About me =
 
-Inhale is built and maintained by Respira. Respira's main product, Respira for WordPress, lets AI apps edit WordPress sites in the page builder each site already uses, with a snapshot before every write and one-click rollback, and signs in from claude.ai and ChatGPT in the browser. Inhale is free and works on its own. Learn more at [respira.press/inhale](https://respira.press/inhale?utm_source=inhale&utm_medium=wp-org&utm_campaign=readme-description).
+I am Mihai Dragomirescu. I build and maintain Inhale and Respira on my own, in Brasov, Romania. Questions and bug reports go to the [support forum](https://wordpress.org/support/plugin/inhale-mcp-abilities/), and I answer them myself.
 
 == Installation ==
 
@@ -104,6 +115,10 @@ Yes. The WordPress AI plugin adds AI features inside wp-admin; Inhale controls w
 
 Respira builds and maintains Inhale for free. Respira for WordPress includes the same controls, so you do not need both; Inhale steps aside automatically when Respira is active.
 
+= What does Respira add to Inhale? =
+
+Inhale controls which abilities AI clients can see. Respira for WordPress lets an AI client act on your pages: it edits in your own page builder, saves a snapshot before each change, undoes it in one click and puts edits to published pages on a draft copy for your approval. [Start the free trial](https://www.respira.press/?utm_source=wporg&utm_medium=inhale&utm_campaign=listing-faq).
+
 = Can Inhale check my site for vulnerable plugins? =
 
 Yes, with a free Respira account. Click Connect on the Inhale screen and approve on respira.press. Inhale then checks WordPress, your plugins and your themes against the Wordfence Intelligence vulnerability database every week and shows what to update. Nothing is sent before you connect.
@@ -130,6 +145,12 @@ Before you connect, Inhale makes no external requests. Links on the settings pag
 4. The same screen in dark mode.
 
 == Changelog ==
+
+= 0.8.0 =
+* Changed: a clearer plugin name and description, so the listing says what Inhale does for Claude, ChatGPT and other AI agents.
+* Added: once an MCP Adapter runs and at least one ability is exposed, one card on the Inhale screen points to Respira for WordPress (7-day free trial). "Not now" hides it for good. It shows nowhere else in wp-admin and makes no request.
+* Changed: the rating request now waits for a week of use with a running adapter and an exposed ability. It shows on the Inhale screen only, and "No thanks" is permanent. It never appears together with the card above.
+* Changed: the readme explains what Respira adds, with plain links.
 
 = 0.7.1 =
 * Fixed: on a site that also runs Respira for WordPress, Inhale now steps aside whatever order the two plugins load in. Before, Inhale loaded first and took the place of the copy inside Respira, and Respira's Abilities screen could fail to load. A note on the Plugins screen says Respira already includes Inhale and that you can deactivate this plugin. If you deactivate Respira later, Inhale takes over again on the next page load.
@@ -160,6 +181,9 @@ Before you connect, Inhale makes no external requests. Links on the settings pag
 The full history is on [GitHub](https://github.com/respira-press/inhale-mcp-abilities/commits/main).
 
 == Upgrade Notice ==
+
+= 0.8.0 =
+A clearer name and description, and one dismissible pointer to Respira on the Inhale screen once setup has worked. No change to which abilities are exposed.
 
 = 0.7.1 =
 For sites that also run Respira for WordPress: Inhale now steps aside for Respira, never hides Respira's abilities and never deletes Respira's list of abilities.
