@@ -64,6 +64,14 @@ class Respira_Inhale_Settings_Page {
 			return;
 		}
 
+		// "Dismiss" on the next-step card: same rule, remembered for this user for good.
+		if ( isset( $_GET['inhale_next'], $_GET['_wpnonce'] ) && 'dismiss' === sanitize_key( wp_unslash( $_GET['inhale_next'] ) ) ) {
+			if ( current_user_can( self::CAPABILITY ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'respira_inhale_next' ) ) {
+				update_user_meta( get_current_user_id(), 'respira_inhale_next_step_dismissed', 1 );
+			}
+			return;
+		}
+
 		if ( 'POST' !== ( isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : '' ) ) {
 			return;
 		}
@@ -564,7 +572,7 @@ class Respira_Inhale_Settings_Page {
 		?>
 		<div class="wrap inhale-wrap" data-theme="light">
 			<?php $this->render_notice(); ?>
-			<?php $this->render_review_request(); ?>
+			<?php $review_shown = $this->render_review_request(); ?>
 
 			<div class="page-head">
 				<div class="page-head-text">
@@ -636,6 +644,13 @@ class Respira_Inhale_Settings_Page {
 			</div>
 
 			<?php $this->render_status_card( $abilities, $exposed, $endpoint ); ?>
+
+			<?php
+			// One ask at a time: the rating request wins when it is due.
+			if ( ! $review_shown ) {
+				$this->render_next_step( $abilities, $exposed );
+			}
+			?>
 
 			<?php if ( class_exists( 'Respira_Inhale_Free_Connect' ) ) : ?>
 				<div class="inhale-free-connect"><?php Respira_Inhale_Free_Connect::render_card(); ?></div>
@@ -1085,31 +1100,99 @@ claude mcp add --transport http my-wordpress-site \
 	}
 
 	/**
-	 * Ask for a rating once, a week after the first saved choice, and never again after a dismissal.
+	 * Count the site's own abilities (the adapter's managed ones excluded) that are exposed.
 	 *
-	 * Shown only on this page, to administrators, with a plain dismiss link.
+	 * @since 0.8.0
+	 *
+	 * @param array $abilities Abilities from discover_abilities().
+	 * @param array $exposed   Names the admin has inhaled.
+	 * @return int
+	 */
+	private function count_own_exposed( $abilities, $exposed ) {
+		$count = 0;
+		foreach ( $abilities as $a ) {
+			if ( ! empty( $a['managed'] ) ) {
+				continue;
+			}
+			if ( in_array( $a['name'], $exposed, true ) ) {
+				++$count;
+			}
+		}
+		return $count;
+	}
+
+	/**
+	 * Ask for a rating once, after Inhale has worked for a week, and never again after a dismissal.
+	 *
+	 * "Worked" means an administrator saved a choice at least a week ago, an
+	 * ability is still exposed and an MCP Adapter is running. Shown only on this
+	 * page, to administrators, with a plain dismiss link that is remembered per user.
 	 *
 	 * @since 0.6.0
+	 * @since 0.8.0 Waits for a running adapter and an exposed ability; returns whether it rendered.
+	 *
+	 * @return bool True when the request was rendered.
 	 */
 	private function render_review_request() {
 		$first_saved = (int) get_option( 'respira_inhale_first_saved_at', 0 );
 		if ( $first_saved <= 0 || ( time() - $first_saved ) < WEEK_IN_SECONDS ) {
-			return;
+			return false;
 		}
 		$user_id = get_current_user_id();
 		if ( ! $user_id || get_user_meta( $user_id, 'respira_inhale_review_dismissed', true ) ) {
-			return;
+			return false;
+		}
+		$adapter = self::adapter_status();
+		if ( empty( $adapter['running'] ) || $this->count_own_exposed( $this->discover_abilities(), $this->get_exposed() ) < 1 ) {
+			return false;
 		}
 		$dismiss = wp_nonce_url( add_query_arg( 'inhale_review', 'dismiss', menu_page_url( self::MENU_SLUG, false ) ), 'respira_inhale_review' );
 		?>
 		<div class="notice notice-info inhale-notice inhale-review-request">
 			<p>
-				<?php esc_html_e( 'If Inhale saves you some PHP, a short rating on WordPress.org helps other site owners find it. It takes a minute.', 'inhale-mcp-abilities' ); ?>
+				<?php esc_html_e( 'Inhale has been running here for a week. If it is useful, a rating on WordPress.org helps other site owners find it.', 'inhale-mcp-abilities' ); ?>
 				<a href="https://wordpress.org/support/plugin/inhale-mcp-abilities/reviews/#new-post" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Rate Inhale', 'inhale-mcp-abilities' ); ?></a>
 				&nbsp;&middot;&nbsp;
 				<a href="<?php echo esc_url( $dismiss ); ?>"><?php esc_html_e( 'No thanks', 'inhale-mcp-abilities' ); ?></a>
 			</p>
 		</div>
+		<?php
+		return true;
+	}
+
+	/**
+	 * One pointer to Respira, shown after setup has worked.
+	 *
+	 * Setup has worked when an MCP Adapter is running and at least one ability
+	 * is exposed. A single card on this page only: no notice elsewhere in
+	 * wp-admin, no request made, and "Not now" hides it for this user for good.
+	 *
+	 * @since 0.8.0
+	 *
+	 * @param array $abilities Abilities from discover_abilities().
+	 * @param array $exposed   Names the admin has inhaled.
+	 */
+	private function render_next_step( $abilities, $exposed ) {
+		$user_id = get_current_user_id();
+		if ( ! $user_id || get_user_meta( $user_id, 'respira_inhale_next_step_dismissed', true ) ) {
+			return;
+		}
+		$adapter = self::adapter_status();
+		if ( empty( $adapter['running'] ) || $this->count_own_exposed( $abilities, $exposed ) < 1 ) {
+			return;
+		}
+		$dismiss = wp_nonce_url( add_query_arg( 'inhale_next', 'dismiss', menu_page_url( self::MENU_SLUG, false ) ), 'respira_inhale_next' );
+		$url     = 'https://www.respira.press/?utm_source=wporg&utm_medium=inhale&utm_campaign=next-step';
+		?>
+		<aside class="inhale-sources-card inhale-next-step" aria-labelledby="inhale-next-h">
+			<h2 id="inhale-next-h" class="inhale-sources-card__title"><?php esc_html_e( 'Next step', 'inhale-mcp-abilities' ); ?></h2>
+			<p class="inhale-next-step__line"><?php esc_html_e( 'AI clients can now reach your abilities. To let one edit your pages, Respira for WordPress works in the page builder you already use and saves a snapshot before every change.', 'inhale-mcp-abilities' ); ?></p>
+			<p class="inhale-next-step__actions">
+				<a class="button button-primary" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Try Respira free for 7 days', 'inhale-mcp-abilities' ); ?></a>
+				<span class="inhale-status__note"><?php esc_html_e( 'No card.', 'inhale-mcp-abilities' ); ?></span>
+				<a href="<?php echo esc_url( $dismiss ); ?>"><?php esc_html_e( 'Not now', 'inhale-mcp-abilities' ); ?></a>
+			</p>
+		</aside>
 		<?php
 	}
 

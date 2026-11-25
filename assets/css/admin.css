@@ -1285,3 +1285,8 @@ body.inhale-theme-dark #wpfooter a {
 }
 
 .inhale-free-connect { margin: 16px 0; }
+
+/* Next-step card: one pointer to Respira after setup has worked. Reuses the
+   sources card surface; only the spacing of its two rows is its own. */
+.inhale-wrap .inhale-next-step__line { margin: 0 0 12px; font-size: 13px; line-height: 1.5; max-width: 62ch; text-wrap: pretty; }
+.inhale-wrap .inhale-next-step__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 0; }

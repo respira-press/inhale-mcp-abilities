@@ -52,6 +52,7 @@ if ( function_exists( 'is_multisite' ) && is_multisite() && function_exists( 'ge
 
 // The rating request's per-user dismissal.
 delete_metadata( 'user', 0, 'respira_inhale_review_dismissed', '', true );
+delete_metadata( 'user', 0, 'respira_inhale_next_step_dismissed', '', true );
 
 // The free Respira account connection is shared with Respira ARC. Leave it in
 // place while ARC is installed; otherwise revoke the token on respira.press and
